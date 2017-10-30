@@ -1,0 +1,16 @@
+a.out
+dup2example.c
+execexample.c
+forktest
+forktest.c
+new.txt
+outputs.txt
+output.txt
+out.txt
+pipeexample.c
+Project1-ShellC.pdf
+shell
+simpleShell.c
+tesing
+testing
+test.py
