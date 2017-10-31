@@ -16,6 +16,9 @@
 
 // Local helper function
 static void schedule(unsigned int cpu_id);
+//function for static prio scheduler
+static int getLowerPriority(pcb_t *process);
+
 
 /*
  * here's another way to do the thing I've used #define for in a couple of the past projects
@@ -222,6 +225,14 @@ extern void terminate(unsigned int cpu_id) {
 extern void wake_up(pcb_t *process) {
     process->state = PROCESS_READY;
     addReadyProcess(process);
+    preempt_cpu = getLowerPriority(process);
+    pthread_mutex_lock(&current_mutex);
+    if (preempt_cpu != -1) {
+      force_preempt(preempt_cpu);
+    }
+    current[preempt_cpu] = process;
+    pthread_mutex_unlock(&current_mutex);
+    process->state = PROCESS_RUNNING;
 }
 
 
@@ -286,4 +297,15 @@ static pcb_t* getReadyProcess(void) {
 
   pthread_mutex_unlock(&ready_mutex);
   return first;
+}
+
+static int getLowerPriority(pcb_t *process) {
+  int curr_cpu = 0;
+  while(current[curr_cpu]) {
+    pcb_t* compare_process = current[curr_cpu];
+    if(compare_process->static_priority < process->static_priority) {
+      return curr_cpu;
+    }
+  }
+  return -1;
 }
