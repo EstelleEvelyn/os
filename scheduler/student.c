@@ -176,8 +176,10 @@ static void schedule(unsigned int cpu_id) {
 extern void preempt(unsigned int cpu_id) {
   pcb_t* running_process = current[cpu_id];
   pthread_mutex_lock(&current_mutex);
-  running_process->state = PROCESS_READY;
-  addReadyProcess(running_process);
+  if (process->state != PROCESS_TERMINATED) {
+    running_process->state = PROCESS_READY;
+    addReadyProcess(running_process);
+  }
   pthread_mutex_unlock(&current_mutex);
   schedule(cpu_id);
 }
@@ -241,19 +243,19 @@ extern void wake_up(pcb_t *process) {
     } else {
       process->temp_priority++;
     }
-    if (process->state !=PROCESS_TERMINATED) {
-    process->state = PROCESS_READY;
-    pthread_mutex_unlock(&current_mutex);
-    addReadyProcess(process);
-    if(alg == StaticPriority) {
-      int preempt_cpu = getLowerPriority(process);
-      if (preempt_cpu != -1) {
-        force_preempt(preempt_cpu);
-        pthread_mutex_lock(&current_mutex);
-        current[preempt_cpu] = process;
-        pthread_mutex_unlock(&current_mutex);
-        process->state = PROCESS_RUNNING;
-      }
+    if (process->state != PROCESS_TERMINATED) {
+      pthread_mutex_unlock(&current_mutex);
+      process->state = PROCESS_READY;
+      addReadyProcess(process);
+      if(alg == StaticPriority) {
+        int preempt_cpu = getLowerPriority(process);
+        if (preempt_cpu != -1) {
+          force_preempt(preempt_cpu);
+          pthread_mutex_lock(&current_mutex);
+          current[preempt_cpu] = process;
+          pthread_mutex_unlock(&current_mutex);
+          process->state = PROCESS_RUNNING;
+        }
     }
   }
 }
