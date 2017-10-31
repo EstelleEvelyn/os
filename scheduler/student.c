@@ -51,7 +51,6 @@ static pcb_t* head3 = NULL;
 static pcb_t* tail3 = NULL;
 static pcb_t* head4 = NULL;
 static pcb_t* tail4 = NULL;
-pcb_t*[] feedbackPrioReadyQueues = [head, head2, head3, head4];
 
 
 /*
