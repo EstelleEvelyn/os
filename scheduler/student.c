@@ -110,7 +110,6 @@ int main(int argc, char *argv[])
 
     /* Start the simulator in the library */
     printf("starting simulator\n");
-    printf("I Did the Thing! alg = %i\n", alg);
     fflush(stdout);
     start_simulator(cpu_count);
 
@@ -153,13 +152,9 @@ extern void idle(unsigned int cpu_id)
  */
 static void schedule(unsigned int cpu_id) {
     pcb_t* proc;
-    printf("I Did the Thing! alg = %i\n", alg);
     if (alg == MultiLevelPrio) {
-      printf("I'm gonna schedule with the correct one");
-      fflush(stdout);
       proc = getMultiProcess();
     } else {
-      printf("think i'll fuck u over");
       proc = getReadyProcess();
     }
 
@@ -258,7 +253,7 @@ extern void wake_up(pcb_t *process) {
       process->state = PROCESS_READY;
       addReadyProcess(process);
     }
-    if(alg = StaticPriority) {
+    if(alg == StaticPriority) {
       int preempt_cpu = getLowerPriority(process);
       if (preempt_cpu != -1) {
         force_preempt(preempt_cpu);
@@ -302,7 +297,6 @@ static void addReadyProcess(pcb_t* proc) {
     pthread_mutex_unlock(&ready_mutex);
   }
    else {
-     printf("Mhmmmmmm");
     if(1 > proc->temp_priority || proc->temp_priority > 4) {
       proc->temp_priority = 4;
     }
