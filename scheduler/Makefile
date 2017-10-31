@@ -6,7 +6,7 @@ obj=student.o os-sim.o process.o
 inc=student.h os-sim.h process.h
 misc=Makefile
 target=os-sim
-cflags=-g -00
+cflags=-g -O0
 lflags=-lpthread
 
 all: $(target)
