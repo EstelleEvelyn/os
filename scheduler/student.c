@@ -174,8 +174,6 @@ static void schedule(unsigned int cpu_id) {
  * THIS FUNCTION MUST BE IMPLEMENTED FOR ROUND ROBIN OR PRIORITY SCHEDULING
  */
 extern void preempt(unsigned int cpu_id) {
-  printf("preempt idle\n");
-  fflush(stdout);
   pcb_t* running_process = current[cpu_id];
   pthread_mutex_lock(&current_mutex);
   running_process->state = PROCESS_READY;
