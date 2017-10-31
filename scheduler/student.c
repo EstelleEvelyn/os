@@ -394,51 +394,55 @@ static pcb_t* getMultiProcess(void) {
         if(head==NULL) {
           pthread_mutex_unlock(&ready_mutex);
           return NULL;
+        } else {
+          // get first process to return and update head to point to next process
+          pcb_t* first = head;
+          head = first->next;
+
+          // if there was no next process, list is now empty, set tail to NULL
+          if (head == NULL) tail = NULL;
+
+          printf("this last state is %i\n", first->state);
+          pthread_mutex_unlock(&ready_mutex);
+          return first;
         }
+      } else {
         // get first process to return and update head to point to next process
-        pcb_t* first = head;
-        head = first->next;
+        pcb_t* first = head2;
+        head2 = first->next;
 
         // if there was no next process, list is now empty, set tail to NULL
-        if (head == NULL) tail = NULL;
+        if (head2 == NULL) tail2 = NULL;
 
-        printf("this last state is %i\n", first->state);
+        printf("this 3rd state is %i\n", first->state);
+
         pthread_mutex_unlock(&ready_mutex);
         return first;
       }
+    } else {
       // get first process to return and update head to point to next process
-      pcb_t* first = head2;
-      head2 = first->next;
+      pcb_t* first = head3;
+      head3 = first->next;
 
       // if there was no next process, list is now empty, set tail to NULL
-      if (head2 == NULL) tail2 = NULL;
+      if (head3 == NULL) tail3 = NULL;
 
-      printf("this 3rd state is %i\n", first->state);
+      printf("this 2nd state is %i\n", first->state);
 
       pthread_mutex_unlock(&ready_mutex);
       return first;
     }
+  } else {
     // get first process to return and update head to point to next process
-    pcb_t* first = head3;
-    head3 = first->next;
+    pcb_t* first = head4;
+    head4 = first->next;
 
     // if there was no next process, list is now empty, set tail to NULL
-    if (head3 == NULL) tail3 = NULL;
+    if (head4 == NULL) tail4 = NULL;
 
-    printf("this 2nd state is %i\n", first->state);
+    printf("this first state is %i\n", first->state);
 
     pthread_mutex_unlock(&ready_mutex);
     return first;
   }
-  // get first process to return and update head to point to next process
-  pcb_t* first = head4;
-  head4 = first->next;
-
-  // if there was no next process, list is now empty, set tail to NULL
-  if (head4 == NULL) tail4 = NULL;
-
-  printf("this first state is %i\n", first->state);
-
-  pthread_mutex_unlock(&ready_mutex);
-  return first;
 }
