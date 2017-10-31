@@ -154,7 +154,7 @@ static void schedule(unsigned int cpu_id) {
     current[cpu_id] = proc;
     pthread_mutex_unlock(&current_mutex);
 
-    if (proc!=NULL && proc->state != PROCESS_WAITING && proc->state != PROCESS_TERMINATED) {
+    if (proc!=NULL) {
         proc->state = PROCESS_RUNNING;
     }
     context_switch(cpu_id, proc, time_slice);
@@ -243,7 +243,7 @@ extern void wake_up(pcb_t *process) {
     } else {
       process->temp_priority++;
     }
-    if (process->state != PROCESS_TERMINATED && process->state != PROCESS_WAITING) {
+    if (process->state != PROCESS_TERMINATED) {
       pthread_mutex_unlock(&current_mutex);
       process->state = PROCESS_READY;
       addReadyProcess(process);
