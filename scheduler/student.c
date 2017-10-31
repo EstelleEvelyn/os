@@ -154,11 +154,11 @@ static void schedule(unsigned int cpu_id) {
     pcb_t* proc = getReadyProcess();
     pthread_mutex_lock(&current_mutex);
     current[cpu_id] = proc;
+    pthread_mutex_unlock(&current_mutex);
 
     if (proc!=NULL) {
         proc->state = PROCESS_RUNNING;
     }
-    pthread_mutex_unlock(&current_mutex);
     context_switch(cpu_id, proc, time_slice);
 }
 
@@ -198,7 +198,6 @@ extern void yield(unsigned int cpu_id) {
     // use lock to ensure thread-safe access to current process
     pthread_mutex_lock(&current_mutex);
     current[cpu_id]->state = PROCESS_WAITING;
-    pthread_cond_signal(&io_blocked);
     pthread_mutex_unlock(&current_mutex);
     schedule(cpu_id);
 }
@@ -238,7 +237,12 @@ extern void terminate(unsigned int cpu_id) {
  * THIS FUNCTION IS PARTIALLY COMPLETED - REQUIRES MODIFICATION
  */
 extern void wake_up(pcb_t *process) {
-    process->state = PROCESS_READY;
+    if (process->state == PROCESS_WAITING) {
+      pthread_cond_signal(&io_blocked);
+      process->state = PROCESS READY;
+    } else {
+      process->state = PROCESS_READY;
+    }
     addReadyProcess(process);
     int preempt_cpu = getLowerPriority(process);
     if (preempt_cpu != -1) {
