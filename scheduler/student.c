@@ -281,7 +281,7 @@ static void addReadyProcess(pcb_t* proc) {
     if (proc->state == PROCESS_WAITING) {
       if(prio_queue == 4) {
         tail4 = NULL;
-        if(head3 == NULL;) {
+        if(head3 == NULL) {
           head3 = proc;
           tail3 = proc;
         } else {
@@ -290,7 +290,7 @@ static void addReadyProcess(pcb_t* proc) {
         }
         proc->temp_priority = 3;
       } else if(prio_queue == 3) {
-        if(head2 == NULL;) {
+        if(head2 == NULL) {
           head2 = proc;
           tail2 = proc;
         } else {
@@ -299,18 +299,18 @@ static void addReadyProcess(pcb_t* proc) {
         }
         proc->temp_priority = 2;
       } else if(prio_queue == 2) {
-        if (head1 == NULL) {
-          head1 = proc;
-          tail1 = proc
+        if (head == NULL) {
+          head = proc;
+          tail = proc
         } else {
-          tail1->next = proc;
-          tail1 = proc;
+          tail->next = proc;
+          tail = proc;
         }
         proc->temp_priority = 4;
       }
     } else {
       if(prio_queue == 1) {
-        if(head2 == NULL;) {
+        if(head2 == NULL) {
           head2 = proc;
           tail2 = proc;
         } else {
@@ -319,7 +319,7 @@ static void addReadyProcess(pcb_t* proc) {
         }
         proc->temp_priority = 2;
       } else if(prio_queue == 2) {
-        if(head3 == NULL;) {
+        if(head3 == NULL) {
           head3 = proc;
           tail3 = proc;
         } else {
