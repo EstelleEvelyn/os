@@ -80,7 +80,6 @@ int main(int argc, char *argv[])
 	}
   else if (argc > 2 && strcmp(argv[2], "-m")==0 && argc > 3) {
     alg = MultiLevelPrio;
-    printf("I Did the Thing! alg = %i\n", alg);
     time_slice = atoi(argv[3]);
     printf("running with multi-level feedback\n");
   }
@@ -153,6 +152,7 @@ extern void idle(unsigned int cpu_id)
  */
 static void schedule(unsigned int cpu_id) {
     pcb_t* proc;
+    printf("I Did the Thing! alg = %i\n", alg);
     if (alg == MultiLevelPrio) {
       printf("I'm gonna schedule with the correct one");
       fflush(stdout);
