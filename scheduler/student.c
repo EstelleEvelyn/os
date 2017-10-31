@@ -251,7 +251,7 @@ extern void wake_up(pcb_t *process) {
     if (process->state == PROCESS_WAITING && alg == MultiLevelPrio){
       process->temp_priority++;
     }
-    if(running_process->state != PROCESS_TERMINATED) {
+    if(process->state != PROCESS_TERMINATED) {
       process->state = PROCESS_READY;
       addReadyProcess(process);
     }
