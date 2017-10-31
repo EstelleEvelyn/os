@@ -402,11 +402,8 @@ static pcb_t* getMultiProcess(void) {
           // if there was no next process, list is now empty, set tail to NULL
           if (head == NULL) tail = NULL;
 
-          printf("this last state is %i\n", first->state);
           pthread_mutex_unlock(&ready_mutex);
-          if(first->state == 1) {
-            return first;
-          }
+          return first;
         }
       } else {
         // get first process to return and update head to point to next process
@@ -417,9 +414,8 @@ static pcb_t* getMultiProcess(void) {
         if (head2 == NULL) tail2 = NULL;
 
         pthread_mutex_unlock(&ready_mutex);
-        if(first->state == 1) {
-          return first;
-        }
+        return first;
+
       }
     } else {
       // get first process to return and update head to point to next process
@@ -430,9 +426,7 @@ static pcb_t* getMultiProcess(void) {
       if (head3 == NULL) tail3 = NULL;
 
       pthread_mutex_unlock(&ready_mutex);
-      if(first->state == 1) {
-        return first;
-      }
+      return first;
     }
   } else {
     // get first process to return and update head to point to next process
@@ -443,9 +437,6 @@ static pcb_t* getMultiProcess(void) {
     if (head4 == NULL) tail4 = NULL;
 
     pthread_mutex_unlock(&ready_mutex);
-    if(first->state == 1) {
-      return first;
-    }
-  }return NULL;
-
+    return first;
+  }
 }
