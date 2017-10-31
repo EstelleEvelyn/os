@@ -238,10 +238,12 @@ extern void terminate(unsigned int cpu_id) {
  */
 extern void wake_up(pcb_t *process) {
     pthread_mutex_lock(&current_mutex);
-    if (process->state == PROCESS_WAITING && alg == MultiLevelPrio) {
-      process->temp_priority--;
-    } else {
-      process->temp_priority++;
+    if (alg == MultiLevelPrio) {
+      if(process->state == PROCESS_WAITING) {
+        process->temp_priority--;
+      } else {
+        process->temp_priority++;
+      }
     }
     if (process->state != PROCESS_TERMINATED) {
       process->state = PROCESS_READY;
@@ -335,7 +337,9 @@ static void addReadyProcess(pcb_t* proc) {
 /*
  * getReadyProcess removes a process from the front of a pseudo linked list (each process
  * struct contains a pointer next that you can use to chain them together)
- * it takes no arguments and returns the first process in the ready queue, or NULL
+ * it takes no arguments and returns the
+
+  process in the ready queue, or NULL
  * if the ready queue is empty
  *
  * TO-DO: handle priority scheduling
