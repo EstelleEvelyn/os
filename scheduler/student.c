@@ -306,6 +306,7 @@ static int getLowerPriority(pcb_t *process) {
     if(compare_process->static_priority < process->static_priority) {
       return curr_cpu;
     }
+    curr_cpu++;
   }
   return -1;
 }
