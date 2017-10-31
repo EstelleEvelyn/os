@@ -315,7 +315,7 @@ static void addReadyProcess(pcb_t* proc) {
         tail = proc;
       }
     } else {
-      if(prio_queue==NULL) {
+      if(proc->temp_priority == NULL) {
         if(head == NULL) {
           head = proc;
           tail = proc;
