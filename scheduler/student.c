@@ -372,7 +372,6 @@ static void addReadyProcess(pcb_t* proc) {
         tail4->next = proc;
         tail4= proc;
       }
-    }
   }
 
   pthread_mutex_unlock(&ready_mutex);
