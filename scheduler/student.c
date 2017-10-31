@@ -35,7 +35,8 @@ static int getLowerPriority(pcb_t *process);
 typedef enum {
     FIFO = 0,
     RoundRobin,
-    StaticPriority
+    StaticPriority,
+    MultiLevelPrio
 } scheduler_alg;
 
 scheduler_alg alg;
@@ -43,6 +44,14 @@ scheduler_alg alg;
 // declare other global vars
 int time_slice = -1;
 int cpu_count;
+
+static pcb_t* head2 = NULL;
+static pcb_t* tail2 = NULL;
+static pcb_t* head3 = NULL;
+static pcb_t* tail3 = NULL;
+static pcb_t* head4 = NULL;
+static pcb_t* tail4 = NULL;
+pcb_t*[] feedbackPrioReadyQueues = [head, head2, head3, head4];
 
 
 /*
@@ -68,6 +77,11 @@ int main(int argc, char *argv[])
 		alg = StaticPriority;
 		printf("running with static priority\n");
 	}
+  else if (argc > 2 && strcmp(argv[2], "-m")==0 && argc > 3) {
+    alg = MultiLevelPrio;
+    time_slice = atoi(argv[3]);
+    printf("running with multi-level feedback\n");
+  }
 	else {
         fprintf(stderr, "Usage: ./os-sim <# CPUs> [ -r <time slice> | -p ]\n"
             "    Default : FIFO Scheduler\n"
@@ -136,8 +150,11 @@ extern void idle(unsigned int cpu_id)
  * THIS FUNCTION IS PARTIALLY COMPLETED - REQUIRES MODIFICATION
  */
 static void schedule(unsigned int cpu_id) {
-    pcb_t* proc = getReadyProcess();
-
+    if(alg != MultiLevelPrio) {
+      pcb_t* proc = getReadyProcess();
+    } else {
+      pcb_t* proc = getMultiProcess();
+    }
     pthread_mutex_lock(&current_mutex);
     current[cpu_id] = proc;
     pthread_mutex_unlock(&current_mutex);
@@ -248,20 +265,85 @@ static void addReadyProcess(pcb_t* proc) {
   // ensure no other process can access ready list while we update it
   pthread_mutex_lock(&ready_mutex);
 
-  // add this process to the end of the ready list
-  if (head == NULL) {
-    head = proc;
-    tail = proc;
-    // if list was empty may need to wake up idle process
-    pthread_cond_signal(&ready_empty);
+  if(alg != MultiLevelPrio) {
+    // add this process to the end of the ready list
+    if (head == NULL) {
+      head = proc;
+      tail = proc;
+      // if list was empty may need to wake up idle process
+      pthread_cond_signal(&ready_empty);
+    }
+    else {
+      tail->next = proc;
+      tail = proc;
+    }
+
+    // ensure that this proc points to NULL
+    proc->next = NULL;
   }
   else {
-    tail->next = proc;
-    tail = proc;
+    int prio_queue = proc->temp_priority;
+    if (proc->state == PROCESS_WAITING) {
+      if(prio_queue == 4) {
+        tail4 = NULL;
+        if(head3 == NULL;) {
+          head3 = proc;
+          tail3 = proc;
+        } else {
+          tail3->next = proc;
+          tail3 = proc;
+        }
+        proc->temp_priority = 3;
+      } else if(prio_queue == 3) {
+        if(head2 == NULL;) {
+          head2 = proc;
+          tail2 = proc;
+        } else {
+          tail2->next = proc;
+          tail2 = proc;
+        }
+        proc->temp_priority = 2;
+      } else if(prio_queue == 2) {
+        if (head1 == NULL) {
+          head1 = proc;
+          tail1 = proc
+        } else {
+          tail1->next = proc;
+          tail1 = proc;
+        }
+        proc->temp_priority = 4;
+      }
+    } else {
+      if(prio_queue == 1) {
+        if(head2 == NULL;) {
+          head2 = proc;
+          tail2 = proc;
+        } else {
+          tail2->next = proc;
+          tail2 = proc;
+        }
+        proc->temp_priority = 2;
+      } else if(prio_queue == 2) {
+        if(head3 == NULL;) {
+          head3 = proc;
+          tail3 = proc;
+        } else {
+          tail3->next = proc;
+          tail3 = proc;
+        }
+        proc->temp_priority = 3;
+      } else if(prio_queue == 3) {
+        if (head4 == NULL) {
+          head4 = proc;
+          tail4 = proc
+        } else {
+          tail4->next = proc;
+          tail4 = proc;
+        }
+        proc->temp_priority = 4;
+      }
+    }
   }
-
-  // ensure that this proc points to NULL
-  proc->next = NULL;
 
   pthread_mutex_unlock(&ready_mutex);
 }
@@ -284,8 +366,41 @@ static pcb_t* getReadyProcess(void) {
 
   // if list is empty, unlock and return null
   if (head == NULL) {
-	  pthread_mutex_unlock(&ready_mutex);
-	  return NULL;
+    if (head2 == NULL) {
+    	if(head3 == NULL) {
+        if(head4 == NULL) {
+          pthread_mutex_unlock(&ready_mutex);
+      	  return NULL;
+        }
+        // get first process to return and update head to point to next process
+        pcb_t* first = head4;
+        head4 = first->next;
+
+        // if there was no next process, list is now empty, set tail to NULL
+        if (head4 == NULL) tail4 = NULL;
+
+        pthread_mutex_unlock(&ready_mutex);
+        return first;
+      }
+      // get first process to return and update head to point to next process
+      pcb_t* first = head3;
+      head3 = first->next;
+
+      // if there was no next process, list is now empty, set tail to NULL
+      if (head3 == NULL) tail3 = NULL;
+
+      pthread_mutex_unlock(&ready_mutex);
+      return first;
+    }
+    // get first process to return and update head to point to next process
+    pcb_t* first = head2;
+    head2 = first->next;
+
+    // if there was no next process, list is now empty, set tail to NULL
+    if (head2 == NULL) tail2 = NULL;
+
+    pthread_mutex_unlock(&ready_mutex);
+    return first;
   }
 
   // get first process to return and update head to point to next process
@@ -309,4 +424,8 @@ static int getLowerPriority(pcb_t *process) {
     curr_cpu++;
   }
   return -1;
+}
+
+static pcb_t* getMultiProcess(void) {
+
 }
