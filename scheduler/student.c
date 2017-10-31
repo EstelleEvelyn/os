@@ -402,7 +402,7 @@ static pcb_t* getMultiProcess(void) {
         // if there was no next process, list is now empty, set tail to NULL
         if (head == NULL) tail = NULL;
 
-        printf("this state is %i\n", first->state);
+        printf("this last state is %i\n", first->state);
         pthread_mutex_unlock(&ready_mutex);
         return first;
       }
@@ -413,7 +413,7 @@ static pcb_t* getMultiProcess(void) {
       // if there was no next process, list is now empty, set tail to NULL
       if (head2 == NULL) tail2 = NULL;
 
-      printf("this state is %i\n", first->state);
+      printf("this 3rd state is %i\n", first->state);
 
       pthread_mutex_unlock(&ready_mutex);
       return first;
@@ -425,7 +425,7 @@ static pcb_t* getMultiProcess(void) {
     // if there was no next process, list is now empty, set tail to NULL
     if (head3 == NULL) tail3 = NULL;
 
-    printf("this state is %i\n", first->state);
+    printf("this 2nd state is %i\n", first->state);
 
     pthread_mutex_unlock(&ready_mutex);
     return first;
@@ -437,7 +437,7 @@ static pcb_t* getMultiProcess(void) {
   // if there was no next process, list is now empty, set tail to NULL
   if (head4 == NULL) tail4 = NULL;
 
-  printf("this state is %i\n", first->state);
+  printf("this first state is %i\n", first->state);
 
   pthread_mutex_unlock(&ready_mutex);
   return first;
