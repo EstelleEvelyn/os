@@ -277,6 +277,7 @@ static void addReadyProcess(pcb_t* proc) {
 
   // ensure no other process can access ready list while we update it
   pthread_mutex_lock(&ready_mutex);
+  printf("this process was put in the ready queue in state: %i\n", proc->state);
 
   // add this process to the end of the ready list
   if(alg != MultiLevelPrio) {
@@ -338,6 +339,7 @@ static void addReadyProcess(pcb_t* proc) {
       }
     }
     proc->next = NULL;
+    printf("this process entered the ready queue in state: %i\n", proc->state);
     pthread_mutex_unlock(&ready_mutex);
     return;
   }
