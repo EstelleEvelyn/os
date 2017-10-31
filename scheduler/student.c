@@ -124,8 +124,6 @@ int main(int argc, char *argv[])
  */
 extern void idle(unsigned int cpu_id)
 {
-  printf("prob idle\n");
-  fflush(stdout);
   pthread_mutex_lock(&ready_mutex);
   while (head == NULL) {
     pthread_cond_wait(&ready_empty, &ready_mutex);
@@ -151,8 +149,6 @@ extern void idle(unsigned int cpu_id)
  * THIS FUNCTION IS PARTIALLY COMPLETED - REQUIRES MODIFICATION
  */
 static void schedule(unsigned int cpu_id) {
-    printf("prob sched\n");
-    fflush(stdout);
     pcb_t* proc = getReadyProcess();
     pthread_mutex_lock(&current_mutex);
     current[cpu_id] = proc;
@@ -241,8 +237,6 @@ extern void terminate(unsigned int cpu_id) {
  * THIS FUNCTION IS PARTIALLY COMPLETED - REQUIRES MODIFICATION
  */
 extern void wake_up(pcb_t *process) {
-    printf("prob wake\n");
-    fflush(stdout);
     process->state = PROCESS_READY;
     addReadyProcess(process);
     int preempt_cpu = getLowerPriority(process);
@@ -264,9 +258,6 @@ extern void wake_up(pcb_t *process) {
  * it takes a pointer to a process as an argument and has no return
  */
 static void addReadyProcess(pcb_t* proc) {
-
-  printf("prob add\n");
-  fflush(stdout);
 
   // ensure no other process can access ready list while we update it
   pthread_mutex_lock(&ready_mutex);
@@ -389,8 +380,6 @@ static void addReadyProcess(pcb_t* proc) {
  * THIS FUNCTION IS PARTIALLY COMPLETED - REQUIRES MODIFICATION
  */
 static pcb_t* getReadyProcess(void) {
-  printf("prob get\n");
-  fflush(stdout);
 
   // ensure no other process can access ready list while we update it
   pthread_mutex_lock(&ready_mutex);
