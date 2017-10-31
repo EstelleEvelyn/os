@@ -381,28 +381,6 @@ static int getLowerPriority(pcb_t *process) {
   return -1;
 }
 
-static pcb_t* getReadyProcess(void) {
-
-  // ensure no other process can access ready list while we update it
-  pthread_mutex_lock(&ready_mutex);
-
-  // if list is empty, unlock and return null
-  if (head == NULL) {
-	  pthread_mutex_unlock(&ready_mutex);
-	  return NULL;
-  }
-
-  // get first process to return and update head to point to next process
-  pcb_t* first = head;
-  head = first->next;
-
-  // if there was no next process, list is now empty, set tail to NULL
-  if (head == NULL) tail = NULL;
-
-  pthread_mutex_unlock(&ready_mutex);
-  return first;
-}
-
 static int getLowerPriority(pcb_t *process) {
   int curr_cpu = 0;
   while(current[curr_cpu]) {
