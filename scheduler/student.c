@@ -246,7 +246,6 @@ extern void terminate(unsigned int cpu_id) {
  * THIS FUNCTION IS PARTIALLY COMPLETED - REQUIRES MODIFICATION
  */
 extern void wake_up(pcb_t *process) {
-    pthread_mutex_lock(&current_mutex);
     // if (process->state == PROCESS_WAITING && alg == MultiLevelPrio){
     //   process->temp_priority++;
     // }
@@ -255,6 +254,7 @@ extern void wake_up(pcb_t *process) {
     int preempt_cpu = getLowerPriority(process);
     if (preempt_cpu != -1) {
       force_preempt(preempt_cpu);
+      pthread_mutex_lock(&current_mutex);
       current[preempt_cpu] = process;
       pthread_mutex_unlock(&current_mutex);
       process->state = PROCESS_RUNNING;
