@@ -44,7 +44,7 @@ static pcb_t* tail4 = NULL;
 typedef enum {
     FIFO = 0,
     RoundRobin,
-    StaticPriority
+    StaticPriority,
     MultiLevelPrio
 } scheduler_alg;
 
