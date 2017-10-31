@@ -21,6 +21,14 @@ static int getLowerPriority(pcb_t *process);
 
 static pcb_t* getMultiProcess();
 
+
+static pcb_t* head2 = NULL;
+static pcb_t* tail2 = NULL;
+static pcb_t* head3 = NULL;
+static pcb_t* tail3 = NULL;
+static pcb_t* head4 = NULL;
+static pcb_t* tail4 = NULL;
+
 /*
  * here's another way to do the thing I've used #define for in a couple of the past projects
  * which is to associate a word with each "state" of something, instead of having to
