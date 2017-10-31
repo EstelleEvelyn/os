@@ -288,7 +288,18 @@ static void addReadyProcess(pcb_t* proc) {
     proc->next = NULL;
   }
   else {
-    int prio_queue = proc->static_priority;
+    int prio_queue = proc->temp_priority;
+    if(!(1<=prio_queue <= 4)) {
+      if(head == NULL) {
+        head = proc;
+        tail = proc;
+        pthread_cond_signal(&ready_empty);
+      } else {
+        tail->next = proc;
+        tail = proc;
+      }
+      proc->temp_priority = 1;
+    }
     printf("this has prio %i", prio_queue);
     if (proc->state == PROCESS_WAITING) {
       if(prio_queue == 4) {
@@ -327,16 +338,6 @@ static void addReadyProcess(pcb_t* proc) {
         tail = proc;
       }
     } else {
-      if(proc->temp_priority == NULL) {
-        if(head == NULL) {
-          head = proc;
-          tail = proc;
-          pthread_cond_signal(&ready_empty);
-        } else {
-          tail->next = proc;
-          tail = proc;
-        }
-        proc->temp_priority = 1;
       } else if(prio_queue == 1) {
         if(head2 == NULL) {
           head2 = proc;
