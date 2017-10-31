@@ -152,11 +152,11 @@ extern void idle(unsigned int cpu_id)
  */
 static void schedule(unsigned int cpu_id) {
     pcb_t* proc;
-    if (alg == MultiLevelPrio) {
-      proc = getMultiProcess();
-    } else {
+    // if (alg == MultiLevelPrio) {
+    //   proc = getMultiProcess();
+    // } else {
       proc = getReadyProcess();
-    }
+    // }
 
     pthread_mutex_lock(&current_mutex);
     current[cpu_id] = proc;
