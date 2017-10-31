@@ -332,7 +332,9 @@ static void addReadyProcess(pcb_t* proc) {
         tail = proc;
       }
     } else {
-
+      while (proc->state == PROCESS_WAITING) {
+        pthread_cond_wait(&io_blocked, &ready_mutex);
+      }
       if(prio_queue == 1) {
         if(head2 == NULL) {
           head2 = proc;
