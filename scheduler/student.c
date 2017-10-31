@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
 	}
   else if (argc > 2 && strcmp(argv[2], "-m")==0 && argc > 3) {
     alg = MultiLevelPrio;
+    printf("I Did the Thing! alg = %i\n", alg);
     time_slice = atoi(argv[3]);
     printf("running with multi-level feedback\n");
   }
