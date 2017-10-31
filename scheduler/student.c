@@ -310,6 +310,9 @@ static void addReadyProcess(pcb_t* proc) {
           tail = proc;
         }
         proc->temp_priority = 1;
+      } else {
+        tail->next = proc;
+        tail = proc;
       }
     } else {
       if(prio_queue==NULL) {
@@ -352,6 +355,9 @@ static void addReadyProcess(pcb_t* proc) {
           tail4 = proc;
         }
         proc->temp_priority = 4;
+      } else {
+        tail4->next = proc;
+        tail4= proc;
       }
     }
   }
