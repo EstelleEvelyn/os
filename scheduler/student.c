@@ -152,11 +152,11 @@ extern void idle(unsigned int cpu_id)
  */
 static void schedule(unsigned int cpu_id) {
     pcb_t* proc;
-    // if (alg == MultiLevelPrio) {
-    //   proc = getMultiProcess();
-    // } else {
+    if (alg == MultiLevelPrio) {
+      proc = getMultiProcess();
+    } else {
       proc = getReadyProcess();
-    // }
+    }
 
     pthread_mutex_lock(&current_mutex);
     current[cpu_id] = proc;
@@ -184,9 +184,9 @@ static void schedule(unsigned int cpu_id) {
 extern void preempt(unsigned int cpu_id) {
   pcb_t* running_process = current[cpu_id];
   pthread_mutex_lock(&current_mutex);
-  // if(alg == MultiLevelPrio) {
-  //   running_process->temp_priority--;
-  // }
+  if(alg == MultiLevelPrio) {
+    running_process->temp_priority--;
+  }
   running_process->state = PROCESS_READY;
   addReadyProcess(running_process);
   pthread_mutex_unlock(&current_mutex);
@@ -246,9 +246,9 @@ extern void terminate(unsigned int cpu_id) {
  * THIS FUNCTION IS PARTIALLY COMPLETED - REQUIRES MODIFICATION
  */
 extern void wake_up(pcb_t *process) {
-    // if (process->state == PROCESS_WAITING && alg == MultiLevelPrio){
-    //   process->temp_priority++;
-    // }
+    if (process->state == PROCESS_WAITING && alg == MultiLevelPrio){
+      process->temp_priority++;
+    }
     process->state = PROCESS_READY;
     addReadyProcess(process);
     int preempt_cpu = getLowerPriority(process);
@@ -293,7 +293,7 @@ static void addReadyProcess(pcb_t* proc) {
   }
    else {
     if(1 > proc->temp_priority || proc->temp_priority > 4) {
-      proc->temp_priority = 1;
+      proc->temp_priority = 4;
     }
     int prio_queue = proc->temp_priority;
     if(prio_queue == 4) {
