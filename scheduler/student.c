@@ -184,9 +184,9 @@ static void schedule(unsigned int cpu_id) {
 extern void preempt(unsigned int cpu_id) {
   pcb_t* running_process = current[cpu_id];
   pthread_mutex_lock(&current_mutex);
-  if(alg == MultiLevelPrio) {
-    running_process->temp_priority--;
-  }
+  // if(alg == MultiLevelPrio) {
+  //   running_process->temp_priority--;
+  // }
   running_process->state = PROCESS_READY;
   addReadyProcess(running_process);
   pthread_mutex_unlock(&current_mutex);
@@ -247,9 +247,9 @@ extern void terminate(unsigned int cpu_id) {
  */
 extern void wake_up(pcb_t *process) {
     pthread_mutex_lock(&current_mutex);
-    if (process->state == PROCESS_WAITING && alg == MultiLevelPrio){
-      process->temp_priority++;
-    }
+    // if (process->state == PROCESS_WAITING && alg == MultiLevelPrio){
+    //   process->temp_priority++;
+    // }
     process->state = PROCESS_READY;
     addReadyProcess(process);
     int preempt_cpu = getLowerPriority(process);
@@ -290,53 +290,53 @@ static void addReadyProcess(pcb_t* proc) {
     // ensure that this proc points to NULL
     proc->next = NULL;
     pthread_mutex_unlock(&ready_mutex)
-    return;
-  } else {
-    if(1 > proc->temp_priority || proc->temp_priority > 4) {
-      proc->temp_priority = 1;
-    }
-    int prio_queue = proc->temp_priority;
-    if(prio_queue == 4) {
-      if(head4 == NULL) {
-        head4 = proc;
-        tail4 = proc;
-        pthread_cond_signal(&ready_empty);
-      } else {
-        tail4->next = proc;
-        tail4 = proc;
-      }
-    } else if(prio_queue == 3) {
-      if(head3 == NULL) {
-        head3 = proc;
-        tail3 = proc;
-        pthread_cond_signal(&ready_empty);
-      } else {
-        tail3->next = proc;
-        tail3 = proc;
-      }
-    } else if(prio_queue == 2) {
-      if (head2 == NULL) {
-        head2 = proc;
-        tail2 = proc;
-        pthread_cond_signal(&ready_empty);
-      } else {
-        tail2->next = proc;
-        tail2 = proc;
-      }
-    } else {
-      if(head == NULL) {
-        head = proc;
-        tail = proc;
-        pthread_cond_signal(&ready_empty);
-      } else {
-        tail->next = proc;
-        tail = proc;
-      }
-    }
-    proc->next = NULL;
-    pthread_mutex_unlock(&ready_mutex);
-    return;
   }
+  //  else {
+  //   if(1 > proc->temp_priority || proc->temp_priority > 4) {
+  //     proc->temp_priority = 1;
+  //   }
+  //   int prio_queue = proc->temp_priority;
+  //   if(prio_queue == 4) {
+  //     if(head4 == NULL) {
+  //       head4 = proc;
+  //       tail4 = proc;
+  //       pthread_cond_signal(&ready_empty);
+  //     } else {
+  //       tail4->next = proc;
+  //       tail4 = proc;
+  //     }
+  //   } else if(prio_queue == 3) {
+  //     if(head3 == NULL) {
+  //       head3 = proc;
+  //       tail3 = proc;
+  //       pthread_cond_signal(&ready_empty);
+  //     } else {
+  //       tail3->next = proc;
+  //       tail3 = proc;
+  //     }
+  //   } else if(prio_queue == 2) {
+  //     if (head2 == NULL) {
+  //       head2 = proc;
+  //       tail2 = proc;
+  //       pthread_cond_signal(&ready_empty);
+  //     } else {
+  //       tail2->next = proc;
+  //       tail2 = proc;
+  //     }
+  //   } else {
+  //     if(head == NULL) {
+  //       head = proc;
+  //       tail = proc;
+  //       pthread_cond_signal(&ready_empty);
+  //     } else {
+  //       tail->next = proc;
+  //       tail = proc;
+  //     }
+  //   }
+  //   proc->next = NULL;
+  //   pthread_mutex_unlock(&ready_mutex);
+  //   return;
+  // }
 }
 
 
