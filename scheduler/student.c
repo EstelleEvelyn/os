@@ -183,7 +183,6 @@ static void schedule(unsigned int cpu_id) {
  */
 extern void preempt(unsigned int cpu_id) {
   pcb_t* running_process = current[cpu_id];
-  pthread_mutex_lock(&ready_mutex);
   if(alg == MultiLevelPrio) {
     running_process->temp_priority--;
   }
@@ -191,7 +190,6 @@ extern void preempt(unsigned int cpu_id) {
     running_process->state = PROCESS_READY;
     addReadyProcess(running_process);
   }
-  pthread_mutex_unlock(&ready_mutex);
   schedule(cpu_id);
 }
 
