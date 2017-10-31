@@ -110,6 +110,7 @@ int main(int argc, char *argv[])
 
     /* Start the simulator in the library */
     printf("starting simulator\n");
+    printf("I Did the Thing! alg = %i\n", alg);
     fflush(stdout);
     start_simulator(cpu_count);
 
