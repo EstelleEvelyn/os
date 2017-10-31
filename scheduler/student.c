@@ -187,8 +187,10 @@ extern void preempt(unsigned int cpu_id) {
   if(alg == MultiLevelPrio) {
     running_process->temp_priority--;
   }
-  running_process->state = PROCESS_READY;
-  addReadyProcess(running_process);
+  if(running_process->state != PROCESS_TERMINATED) {
+    running_process->state = PROCESS_READY;
+    addReadyProcess(running_process);
+  }
   pthread_mutex_unlock(&current_mutex);
   schedule(cpu_id);
 }
@@ -249,8 +251,10 @@ extern void wake_up(pcb_t *process) {
     if (process->state == PROCESS_WAITING && alg == MultiLevelPrio){
       process->temp_priority++;
     }
-    process->state = PROCESS_READY;
-    addReadyProcess(process);
+    if(running_process->state != PROCESS_TERMINATED) {
+      process->state = PROCESS_READY;
+      addReadyProcess(process);
+    }
     int preempt_cpu = getLowerPriority(process);
     if (preempt_cpu != -1) {
       force_preempt(preempt_cpu);
