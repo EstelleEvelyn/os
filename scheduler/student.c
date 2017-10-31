@@ -225,7 +225,7 @@ extern void terminate(unsigned int cpu_id) {
 extern void wake_up(pcb_t *process) {
     process->state = PROCESS_READY;
     addReadyProcess(process);
-    preempt_cpu = getLowerPriority(process);
+    int preempt_cpu = getLowerPriority(process);
     pthread_mutex_lock(&current_mutex);
     if (preempt_cpu != -1) {
       force_preempt(preempt_cpu);
