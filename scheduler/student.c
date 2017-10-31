@@ -162,7 +162,7 @@ extern void preempt(unsigned int cpu_id) {
   pcb_t* running_process = current[cpu_id];
   pthread_mutex_lock(&current_mutex);
   running_process->state = PROCESS_READY;
-  addReadyProcess(PROCESS_READY);
+  addReadyProcess(running_process);
   pthread_mutex_unlock(&current_mutex);
   schedule(cpu_id);
 }
