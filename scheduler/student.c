@@ -274,10 +274,9 @@ static void addReadyProcess(pcb_t* proc) {
       tail = proc;
       // if list was empty may need to wake up idle process
       pthread_cond_signal(&ready_empty);
-    }
-    else {
-      tail->next = proc;
-      tail = proc;
+    } else {
+        tail->next = proc;
+        tail = proc;
     }
 
     // ensure that this proc points to NULL
@@ -322,9 +321,10 @@ static void addReadyProcess(pcb_t* proc) {
       } else {
         tail->next = proc;
         tail = proc;
+      }
     }
+    pthread_mutex_unlock(&ready_mutex);
   }
-  pthread_mutex_unlock(&ready_mutex);
 }
 
 
