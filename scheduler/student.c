@@ -298,7 +298,6 @@ static void addReadyProcess(pcb_t* proc) {
       proc->temp_priority = 4;
     }
     int prio_queue = proc->temp_priority;
-    printf("this state is %i\n", proc->state);
     if(prio_queue == 4) {
       if(head4 == NULL) {
         head4 = proc;
@@ -372,6 +371,7 @@ static pcb_t* getReadyProcess(void) {
   if (head == NULL) tail = NULL;
 
   pthread_mutex_unlock(&ready_mutex);
+  printf("this state is %i\n", first->state);
   return first;
 }
 
@@ -404,6 +404,7 @@ static pcb_t* getMultiProcess(void) {
         if (head == NULL) tail = NULL;
 
         pthread_mutex_unlock(&ready_mutex);
+        printf("this state is %i\n", first->state);
         return first;
       }
       // get first process to return and update head to point to next process
@@ -414,6 +415,7 @@ static pcb_t* getMultiProcess(void) {
       if (head2 == NULL) tail2 = NULL;
 
       pthread_mutex_unlock(&ready_mutex);
+      printf("this state is %i\n", first->state);
       return first;
     }
     // get first process to return and update head to point to next process
@@ -424,6 +426,7 @@ static pcb_t* getMultiProcess(void) {
     if (head3 == NULL) tail3 = NULL;
 
     pthread_mutex_unlock(&ready_mutex);
+    printf("this state is %i\n", first->state);
     return first;
   }
   // get first process to return and update head to point to next process
@@ -434,5 +437,6 @@ static pcb_t* getMultiProcess(void) {
   if (head4 == NULL) tail4 = NULL;
 
   pthread_mutex_unlock(&ready_mutex);
+  printf("this state is %i\n", first->state);
   return first;
 }
