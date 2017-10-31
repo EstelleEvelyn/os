@@ -226,11 +226,11 @@ extern void wake_up(pcb_t *process) {
     process->state = PROCESS_READY;
     addReadyProcess(process);
     int preempt_cpu = getLowerPriority(process);
-    pthread_mutex_lock(&current_mutex);
+    // pthread_mutex_lock(&current_mutex);
     if (preempt_cpu != -1) {
       force_preempt(preempt_cpu);
       current[preempt_cpu] = process;
-    pthread_mutex_unlock(&current_mutex);
+    // pthread_mutex_unlock(&current_mutex);
     process->state = PROCESS_RUNNING;
     }
 }
