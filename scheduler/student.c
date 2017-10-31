@@ -153,9 +153,11 @@ extern void idle(unsigned int cpu_id)
 static void schedule(unsigned int cpu_id) {
     pcb_t* proc;
     if (alg == MultiLevelPrio) {
-      print("I'm gonna schedule with the correct one");
+      printf("I'm gonna schedule with the correct one");
+      fflush(stdout);
       proc = getMultiProcess();
     } else {
+      printf("think i'll fuck u over");
       proc = getReadyProcess();
     }
 
