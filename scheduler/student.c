@@ -229,10 +229,10 @@ extern void wake_up(pcb_t *process) {
     pthread_mutex_lock(&current_mutex);
     if (preempt_cpu != -1) {
       force_preempt(preempt_cpu);
-    }
-    current[preempt_cpu] = process;
+      current[preempt_cpu] = process;
     pthread_mutex_unlock(&current_mutex);
     process->state = PROCESS_RUNNING;
+    }
 }
 
 
