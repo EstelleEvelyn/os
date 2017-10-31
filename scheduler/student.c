@@ -303,6 +303,7 @@ static void addReadyProcess(pcb_t* proc) {
       if(head4 == NULL) {
         head4 = proc;
         tail4 = proc;
+        pthread_cond_broadcast(&ready_empty);
       } else {
         tail4->next = proc;
         tail4 = proc;
@@ -311,6 +312,7 @@ static void addReadyProcess(pcb_t* proc) {
       if(head3 == NULL) {
         head3 = proc;
         tail3 = proc;
+        pthread_cond_broadcast(&ready_empty);
       } else {
         tail3->next = proc;
         tail3 = proc;
@@ -319,6 +321,7 @@ static void addReadyProcess(pcb_t* proc) {
       if (head2 == NULL) {
         head2 = proc;
         tail2 = proc;
+        pthread_cond_broadcast(&ready_empty);
       } else {
         tail2->next = proc;
         tail2 = proc;
@@ -327,13 +330,13 @@ static void addReadyProcess(pcb_t* proc) {
       if(head == NULL) {
         head = proc;
         tail = proc;
+        pthread_cond_broadcast(&ready_empty);
       } else {
         tail->next = proc;
         tail = proc;
       }
     }
     proc->next = NULL;
-    pthread_cond_signal(&ready_empty);
     pthread_mutex_unlock(&ready_mutex);
     return;
   }
