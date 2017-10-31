@@ -176,7 +176,7 @@ static void schedule(unsigned int cpu_id) {
 extern void preempt(unsigned int cpu_id) {
   pcb_t* running_process = current[cpu_id];
   pthread_mutex_lock(&current_mutex);
-  if (process->state != PROCESS_TERMINATED) {
+  if (running_process->state != PROCESS_TERMINATED) {
     running_process->state = PROCESS_READY;
     addReadyProcess(running_process);
   }
