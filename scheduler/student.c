@@ -290,7 +290,7 @@ static void addReadyProcess(pcb_t* proc) {
     // ensure that this proc points to NULL
     proc->next = NULL;
     pthread_mutex_unlock(&ready_mutex)
-    return NULL;
+    return;
   } else {
     if(1 > proc->temp_priority || proc->temp_priority > 4) {
       proc->temp_priority = 1;
@@ -335,7 +335,7 @@ static void addReadyProcess(pcb_t* proc) {
     }
     proc->next = NULL;
     pthread_mutex_unlock(&ready_mutex);
-    return NULL;
+    return;
   }
 }
 
