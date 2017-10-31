@@ -238,8 +238,8 @@ extern void terminate(unsigned int cpu_id) {
  */
 extern void wake_up(pcb_t *process) {
     if (process->state == PROCESS_WAITING) {
-      pthread_cond_signal(&io_blocked);
       process->state = PROCESS_READY;
+      pthread_cond_signal(&io_blocked);
     } else {
       process->state = PROCESS_READY;
     }
