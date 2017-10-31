@@ -446,5 +446,6 @@ static pcb_t* getMultiProcess(void) {
     if(first->state == 1) {
       return first;
     }
-  }
+  }return NULL;
+
 }
