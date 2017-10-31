@@ -288,7 +288,7 @@ static void addReadyProcess(pcb_t* proc) {
     proc->next = NULL;
   }
   else {
-    int prio_queue = proc->temp_priority;
+    int prio_queue = proc->static_priority;
     printf("this has prio %i", prio_queue);
     if (proc->state == PROCESS_WAITING) {
       if(prio_queue == 4) {
