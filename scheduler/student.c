@@ -288,7 +288,7 @@ static void addReadyProcess(pcb_t* proc) {
     proc->next = NULL;
   }
   else {
-    if(1 > proc->temp_priority || proc->temp_priority > 4)) {
+    if(1 > proc->temp_priority || proc->temp_priority > 4) {
       if(head == NULL) {
         head = proc;
         tail = proc;
