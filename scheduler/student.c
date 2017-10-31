@@ -241,7 +241,7 @@ extern void wake_up(pcb_t *process) {
     } else {
       process->temp_priority++;
     }
-    if (process->state != TERMINATED) {
+    if (process->state !=PROCESS_TERMINATED) {
     process->state = PROCESS_READY;
     pthread_mutex_unlock(&current_mutex);
     addReadyProcess(process);
