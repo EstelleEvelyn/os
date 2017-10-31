@@ -294,6 +294,8 @@ static void addReadyProcess(pcb_t* proc) {
     int prio_queue = proc->temp_priority;
     if (proc->state == PROCESS_WAITING) {
       while (proc->state == PROCESS_WAITING) {
+        printf("waiting\n");
+
         pthread_cond_wait(&io_blocked, &ready_mutex);
       }
       if(prio_queue == 4) {
@@ -333,6 +335,7 @@ static void addReadyProcess(pcb_t* proc) {
       }
     } else {
       while (proc->state == PROCESS_WAITING) {
+        printf("waiting\n");
         pthread_cond_wait(&io_blocked, &ready_mutex);
       }
       if(prio_queue == 1) {
