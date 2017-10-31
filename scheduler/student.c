@@ -19,8 +19,6 @@ static void schedule(unsigned int cpu_id);
 //function for static prio scheduler
 static int getLowerPriority(pcb_t *process);
 
-static pthread_cond_t io_blocked;
-
 
 /*
  * here's another way to do the thing I've used #define for in a couple of the past projects
@@ -237,12 +235,14 @@ extern void terminate(unsigned int cpu_id) {
  * THIS FUNCTION IS PARTIALLY COMPLETED - REQUIRES MODIFICATION
  */
 extern void wake_up(pcb_t *process) {
-    if (process->state == PROCESS_WAITING) {
-      process->state = PROCESS_READY;
-      pthread_cond_signal(&io_blocked);
+    pthread_mutex_lock(&current_mutex);
+    if (process->state == PROCESS_WAITING && alg == MultiLevelPrio) {
+      process->temp_priority--;
     } else {
-      process->state = PROCESS_READY;
+      process->temp_priority++;
     }
+    process->state = PROCESS_READY;
+    pthread_mutex_unlock(&current_mutex);
     addReadyProcess(process);
     int preempt_cpu = getLowerPriority(process);
     if (preempt_cpu != -1) {
@@ -282,10 +282,39 @@ static void addReadyProcess(pcb_t* proc) {
 
     // ensure that this proc points to NULL
     proc->next = NULL;
-  }
-  else {
-    printf("Process state:%i\n",proc->state);
+  } else {
     if(1 > proc->temp_priority || proc->temp_priority > 4) {
+      proc->temp_priority = 1;
+    }
+    int prio_queue = proc->temp_priority;
+    if(prio_queue == 4) {
+      if(head4 == NULL) {
+        head4 = proc;
+        tail4 = proc;
+        pthread_cond_signal(&ready_empty);
+      } else {
+        tail4->next = proc;
+        tail4 = proc;
+      }
+    } else if(prio_queue == 3) {
+      if(head3 == NULL) {
+        head3 = proc;
+        tail3 = proc;
+        pthread_cond_signal(&ready_empty);
+      } else {
+        tail3->next = proc;
+        tail3 = proc;
+      }
+    } else if(prio_queue == 2) {
+      if (head2 == NULL) {
+        head2 = proc;
+        tail2 = proc;
+        pthread_cond_signal(&ready_empty);
+      } else {
+        tail2->next = proc;
+        tail2 = proc;
+      }
+    } else {
       if(head == NULL) {
         head = proc;
         tail = proc;
@@ -293,93 +322,8 @@ static void addReadyProcess(pcb_t* proc) {
       } else {
         tail->next = proc;
         tail = proc;
-      }
-      proc->temp_priority = 1;
-    }
-    int prio_queue = proc->temp_priority;
-    if (proc->state == PROCESS_WAITING) {
-      while (proc->state == PROCESS_WAITING) {
-        printf("waiting\n");
-
-        pthread_cond_wait(&io_blocked, &ready_mutex);
-      }
-      if(prio_queue == 4) {
-        tail4 = NULL;
-        if(head3 == NULL) {
-          head3 = proc;
-          tail3 = proc;
-          pthread_cond_signal(&ready_empty);
-        } else {
-          tail3->next = proc;
-          tail3 = proc;
-        }
-        proc->temp_priority = 3;
-      } else if(prio_queue == 3) {
-        if(head2 == NULL) {
-          head2 = proc;
-          tail2 = proc;
-          pthread_cond_signal(&ready_empty);
-        } else {
-          tail2->next = proc;
-          tail2 = proc;
-        }
-        proc->temp_priority = 2;
-      } else if(prio_queue == 2) {
-        if (head == NULL) {
-          head = proc;
-          tail = proc;
-          pthread_cond_signal(&ready_empty);
-        } else {
-          tail->next = proc;
-          tail = proc;
-        }
-        proc->temp_priority = 1;
-      } else {
-        tail->next = proc;
-        tail = proc;
-      }
-    } else {
-      while (proc->state == PROCESS_WAITING) {
-        printf("waiting\n");
-        pthread_cond_wait(&io_blocked, &ready_mutex);
-      }
-      if(prio_queue == 1) {
-        if(head2 == NULL) {
-          head2 = proc;
-          tail2 = proc;
-          pthread_cond_signal(&ready_empty);
-        } else {
-          tail2->next = proc;
-          tail2 = proc;
-        }
-        proc->temp_priority = 2;
-      } else if(prio_queue == 2) {
-        if(head3 == NULL) {
-          head3 = proc;
-          tail3 = proc;
-          pthread_cond_signal(&ready_empty);
-        } else {
-          tail3->next = proc;
-          tail3 = proc;
-        }
-        proc->temp_priority = 3;
-      } else if(prio_queue == 3) {
-        if (head4 == NULL) {
-          head4 = proc;
-          tail4 = proc;
-          pthread_cond_signal(&ready_empty);
-        } else {
-          tail4->next = proc;
-          tail4 = proc;
-        }
-        proc->temp_priority = 4;
-      } else {
-        tail4->next = proc;
-        tail4= proc;
-      }
     }
   }
-
   pthread_mutex_unlock(&ready_mutex);
 }
 
