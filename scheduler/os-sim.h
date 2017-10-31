@@ -37,7 +37,7 @@ typedef enum {
  *   static_priority : An integer from 0 to 10 to be used by the static
  *        priority scheduling algorithm.  (0 = lowest priority;
  *        10 = highest priority; read-only)
- * 
+ *
  *   temp_priority : An integer > 0 to be used by any scheduling algorithm
  *        initialized to static priority, may be modified by anyone
  *
@@ -108,4 +108,3 @@ extern void mt_safe_usleep(unsigned long usec);
 
 
 #endif /* __OS_SIM_H__ */
-

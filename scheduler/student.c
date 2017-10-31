@@ -19,6 +19,8 @@ static void schedule(unsigned int cpu_id);
 //function for static prio scheduler
 static int getLowerPriority(pcb_t *process);
 
+static pthread_cond_t io_blocked;
+
 
 /*
  * here's another way to do the thing I've used #define for in a couple of the past projects
@@ -196,6 +198,7 @@ extern void yield(unsigned int cpu_id) {
     // use lock to ensure thread-safe access to current process
     pthread_mutex_lock(&current_mutex);
     current[cpu_id]->state = PROCESS_WAITING;
+    pthread_cond_signal(&io_blocked);
     pthread_mutex_unlock(&current_mutex);
     schedule(cpu_id);
 }
@@ -290,6 +293,9 @@ static void addReadyProcess(pcb_t* proc) {
     }
     int prio_queue = proc->temp_priority;
     if (proc->state == PROCESS_WAITING) {
+      while (proc->state == PROCESS_WAITING) {
+        pthread_cond_wait(&io_blocked, &ready_mutex);
+      }
       if(prio_queue == 4) {
         tail4 = NULL;
         if(head3 == NULL) {
