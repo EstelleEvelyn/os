@@ -149,11 +149,7 @@ extern void idle(unsigned int cpu_id)
  * THIS FUNCTION IS PARTIALLY COMPLETED - REQUIRES MODIFICATION
  */
 static void schedule(unsigned int cpu_id) {
-    if(alg != MultiLevelPrio) {
-      pcb_t* proc = getReadyProcess();
-    } else {
-      pcb_t* proc = getMultiProcess();
-    }
+    pcb_t* proc = getReadyProcess();
     pthread_mutex_lock(&current_mutex);
     current[cpu_id] = proc;
     pthread_mutex_unlock(&current_mutex);
@@ -423,8 +419,4 @@ static int getLowerPriority(pcb_t *process) {
     curr_cpu++;
   }
   return -1;
-}
-
-static pcb_t* getMultiProcess(void) {
-
 }
