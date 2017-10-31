@@ -332,7 +332,8 @@ static void addReadyProcess(pcb_t* proc) {
         tail = proc;
       }
     } else {
-      } if(prio_queue == 1) {
+
+      if(prio_queue == 1) {
         if(head2 == NULL) {
           head2 = proc;
           tail2 = proc;
@@ -366,6 +367,7 @@ static void addReadyProcess(pcb_t* proc) {
         tail4->next = proc;
         tail4= proc;
       }
+    }
   }
 
   pthread_mutex_unlock(&ready_mutex);
