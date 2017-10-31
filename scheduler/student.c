@@ -154,7 +154,7 @@ static void schedule(unsigned int cpu_id) {
     current[cpu_id] = proc;
     pthread_mutex_unlock(&current_mutex);
 
-    if (proc!=NULL) {
+    if (proc!=NULL && proc->state != PROCESS_WAITING && proc->state != PROCESS_TERMINATED) {
         proc->state = PROCESS_RUNNING;
     }
     context_switch(cpu_id, proc, time_slice);
