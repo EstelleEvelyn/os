@@ -196,7 +196,7 @@ static void simulator_supervisor_thread(void)
         simulator_time++;
         pthread_mutex_unlock(&simulator_mutex);
 
-        mt_safe_usleep(100000);
+        mt_safe_usleep(100);
     }
 }
 
