@@ -182,7 +182,9 @@ static void schedule(unsigned int cpu_id) {
  * THIS FUNCTION MUST BE IMPLEMENTED FOR ROUND ROBIN OR PRIORITY SCHEDULING
  */
 extern void preempt(unsigned int cpu_id) {
+  pthread_mutex_lock(&current_mutex);
   pcb_t* running_process = current[cpu_id];
+  pthread_mutex_unlock(&current_mutex;)
   if(alg == MultiLevelPrio) {
     running_process->temp_priority--;
   }
