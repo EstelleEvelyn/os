@@ -188,10 +188,10 @@ extern void preempt(unsigned int cpu_id) {
   if(alg == MultiLevelPrio) {
     running_process->temp_priority--;
   }
-  if(running_process->state != PROCESS_TERMINATED) {
+  // if(running_process->state != PROCESS_TERMINATED) {
     running_process->state = PROCESS_READY;
     addReadyProcess(running_process);
-  }
+  // }
   schedule(cpu_id);
 }
 
