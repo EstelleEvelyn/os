@@ -391,19 +391,25 @@ static pcb_t* getReadyProcess(void) {
 }
 
 static int getLowerPriority(pcb_t *process) {
+  //look at every CPU to see if it's running a lower priority process
   int curr_cpu = 0;
   pthread_mutex_lock(&current_mutex);
   for(curr_cpu = 0; curr_cpu < cpu_count; curr_cpu++) {
     pcb_t* compare_process = current[curr_cpu];
     pthread_mutex_unlock(&current_mutex);
     if(compare_process != NULL && compare_process->static_priority < process->static_priority) {
+      //return cpu with lower priority
       return curr_cpu;
     }
   }
+  //if no lower priority process found, return -1
   return -1;
 }
 
 static pcb_t* getMultiProcess(void) {
+  //same process as getReadyProcess, but for use with MLFS and contains 4 nested
+  //versions of the getReadyProcess algorithm, resulting in the 4th queue emptying
+  //first
   pthread_mutex_lock(&ready_mutex);
   if (head4 == NULL) {
     if(head3 == NULL) {
