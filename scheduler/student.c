@@ -396,8 +396,10 @@ static pcb_t* getReadyProcess(void) {
 static int getLowerPriority(pcb_t *process) {
   //look through all cpus
   int curr_cpu;
-  for(curr_cpu = 0; curr_cpu < cpu_count; curr_cpu++) {
+  pthread_mutex_lock(&current_mutex);
+  while(current[curr_cpu]) {
     pcb_t* compare_process = current[curr_cpu];
+    pthread_mutex_unlock(&current_mutex);
     if(compare_process != NULL && compare_process->static_priority < process->static_priority) {
       return curr_cpu;
     }
