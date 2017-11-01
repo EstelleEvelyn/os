@@ -3,6 +3,7 @@
  * This file contains the CPU scheduler for the simulation.
  * original base code from http://www.cc.gatech.edu/~rama/CS2200
  * Last modified 10/20/2017 by Sherri Goings
+ * Non-FIFO scheduling methods added by Estelle Bayer
  */
 
 #include <assert.h>
@@ -153,15 +154,19 @@ extern void idle(unsigned int cpu_id)
 static void schedule(unsigned int cpu_id) {
     pcb_t* proc;
     if (alg == MultiLevelPrio) {
+      //get the highest priority queue's next ready process
       proc = getMultiProcess();
     } else {
+      //get the next ready process
       proc = getReadyProcess();
     }
 
+    //put new process on cpu
     pthread_mutex_lock(&current_mutex);
     current[cpu_id] = proc;
     pthread_mutex_unlock(&current_mutex);
 
+    //change process to running
     if (proc!=NULL) {
         proc->state = PROCESS_RUNNING;
     }
@@ -182,12 +187,15 @@ static void schedule(unsigned int cpu_id) {
  * THIS FUNCTION MUST BE IMPLEMENTED FOR ROUND ROBIN OR PRIORITY SCHEDULING
  */
 extern void preempt(unsigned int cpu_id) {
+  //get the process currently on the cpu
   pthread_mutex_lock(&current_mutex);
   pcb_t* running_process = current[cpu_id];
   pthread_mutex_unlock(&current_mutex);
   if(alg == MultiLevelPrio) {
+    //decrease priority for MLFS, since timeslice expired
     running_process->temp_priority--;
   }
+  //put process into ready queue
   running_process->state = PROCESS_READY;
   addReadyProcess(running_process);
   schedule(cpu_id);
@@ -246,8 +254,11 @@ extern void terminate(unsigned int cpu_id) {
  * THIS FUNCTION IS PARTIALLY COMPLETED - REQUIRES MODIFICATION
  */
 extern void wake_up(pcb_t *process) {
+    //if woken up from IO wait in MLFS, give higher priority
     if (process->state == PROCESS_WAITING && alg == MultiLevelPrio){
-      process->temp_priority++;
+      if (process->temp_priority < 4) {
+        process->temp_priority++;
+      }
     }
     process->state = PROCESS_READY;
     addReadyProcess(process);
