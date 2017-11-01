@@ -259,10 +259,9 @@ extern void wake_up(pcb_t *process) {
       if (process->temp_priority < 4) {
         process->temp_priority++;
       }
-    //add process to ready queue
+    }
     process->state = PROCESS_READY;
     addReadyProcess(process);
-    //for static prio, try to find a cpu running a lower priority process and preempt it
     if(alg == StaticPriority) {
       int preempt_cpu = getLowerPriority(process);
       if (preempt_cpu != -1) {
@@ -273,7 +272,6 @@ extern void wake_up(pcb_t *process) {
         process->state = PROCESS_RUNNING;
       }
     }
-  }
 }
 
 
@@ -288,7 +286,7 @@ static void addReadyProcess(pcb_t* proc) {
 
   // ensure no other process can access ready list while we update it
   pthread_mutex_lock(&ready_mutex);
-  //immutable priority
+  // add this process to the end of the ready list
   if(alg != MultiLevelPrio) {
     // add this process to the end of the ready list
     if (head == NULL) {
@@ -306,13 +304,10 @@ static void addReadyProcess(pcb_t* proc) {
     pthread_mutex_unlock(&ready_mutex);
   }
    else {
-     //have four separate priority queues
     if(1 > proc->temp_priority || proc->temp_priority > 4) {
-      //initialize temporary priority if needed
       proc->temp_priority = 4;
     }
     int prio_queue = proc->temp_priority;
-    //add to 4th (highest) queue via above method
     if(prio_queue == 4) {
       if(head4 == NULL) {
         head4 = proc;
@@ -322,7 +317,6 @@ static void addReadyProcess(pcb_t* proc) {
         tail4->next = proc;
         tail4 = proc;
       }
-    //add to 3rd queue
     } else if(prio_queue == 3) {
       if(head3 == NULL) {
         head3 = proc;
@@ -332,7 +326,6 @@ static void addReadyProcess(pcb_t* proc) {
         tail3->next = proc;
         tail3 = proc;
       }
-      //add to 2nd queue
     } else if(prio_queue == 2) {
       if (head2 == NULL) {
         head2 = proc;
@@ -342,7 +335,6 @@ static void addReadyProcess(pcb_t* proc) {
         tail2->next = proc;
         tail2 = proc;
       }
-      //add to lowest queue
     } else {
       if(head == NULL) {
         head = proc;
@@ -353,7 +345,6 @@ static void addReadyProcess(pcb_t* proc) {
         tail = proc;
       }
     }
-    //make sure tail has null next pointer
     proc->next = NULL;
     pthread_mutex_unlock(&ready_mutex);
     return;
@@ -394,12 +385,9 @@ static pcb_t* getReadyProcess(void) {
 }
 
 static int getLowerPriority(pcb_t *process) {
-  //look through all cpus
-  int curr_cpu;
-  // pthread_mutex_lock(&current_mutex);
+  int curr_cpu = 0;
   while(current[curr_cpu]) {
     pcb_t* compare_process = current[curr_cpu];
-    // pthread_mutex_unlock(&current_mutex);
     if(compare_process != NULL && compare_process->static_priority < process->static_priority) {
       return curr_cpu;
     }
