@@ -304,10 +304,12 @@ static void addReadyProcess(pcb_t* proc) {
     pthread_mutex_unlock(&ready_mutex);
   }
    else {
+     //assign highest priority initially
     if(1 > proc->temp_priority || proc->temp_priority > 4) {
       proc->temp_priority = 4;
     }
     int prio_queue = proc->temp_priority;
+    //add to 4th (highest) queue using above method
     if(prio_queue == 4) {
       if(head4 == NULL) {
         head4 = proc;
@@ -317,6 +319,7 @@ static void addReadyProcess(pcb_t* proc) {
         tail4->next = proc;
         tail4 = proc;
       }
+      //add to 3rd queue
     } else if(prio_queue == 3) {
       if(head3 == NULL) {
         head3 = proc;
@@ -326,6 +329,7 @@ static void addReadyProcess(pcb_t* proc) {
         tail3->next = proc;
         tail3 = proc;
       }
+      //add to second
     } else if(prio_queue == 2) {
       if (head2 == NULL) {
         head2 = proc;
@@ -335,6 +339,7 @@ static void addReadyProcess(pcb_t* proc) {
         tail2->next = proc;
         tail2 = proc;
       }
+      //add to first (lowest) prio queue
     } else {
       if(head == NULL) {
         head = proc;
@@ -345,6 +350,7 @@ static void addReadyProcess(pcb_t* proc) {
         tail = proc;
       }
     }
+    //make sure tail has null next pointer
     proc->next = NULL;
     pthread_mutex_unlock(&ready_mutex);
     return;
@@ -386,9 +392,11 @@ static pcb_t* getReadyProcess(void) {
 
 static int getLowerPriority(pcb_t *process) {
   int curr_cpu = 0;
+  pthread_mutex_lock(&current_mutex);
   for(curr_cpu = 0; curr_cpu < cpu_count; curr_cpu++) {
     pcb_t* compare_process = current[curr_cpu];
     if(compare_process != NULL && compare_process->static_priority < process->static_priority) {
+      pthread_mutex_unlock(&current_mutex);
       return curr_cpu;
     }
   }
