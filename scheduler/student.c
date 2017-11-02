@@ -19,6 +19,8 @@
 static void schedule(unsigned int cpu_id);
 //function for static prio scheduler
 static int getLowerPriority(pcb_t *process);
+static void print_ready_queue(pcb_t* queue_start);
+
 
 static pcb_t* getMultiProcess();
 
