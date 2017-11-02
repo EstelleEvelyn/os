@@ -131,6 +131,7 @@ extern void idle(unsigned int cpu_id)
 {
   pthread_mutex_lock(&ready_mutex);
   while (head == NULL) {
+    printf("waiting\n");
     pthread_cond_wait(&ready_empty, &ready_mutex);
   }
   pthread_mutex_unlock(&ready_mutex);
@@ -264,6 +265,8 @@ extern void wake_up(pcb_t *process) {
     }
     process->state = PROCESS_READY;
     addReadyProcess(process);
+
+
     if(alg == StaticPriority) {
       int preempt_cpu = getLowerPriority(process);
       if (preempt_cpu != -1) {
@@ -317,6 +320,7 @@ static void addReadyProcess(pcb_t* proc) {
         head4 = proc;
         tail4 = proc;
         pthread_cond_signal(&ready_empty);
+        printf("signaled\n");
       } else {
         tail4->next = proc;
         tail4 = proc;
@@ -327,6 +331,7 @@ static void addReadyProcess(pcb_t* proc) {
         head3 = proc;
         tail3 = proc;
         pthread_cond_signal(&ready_empty);
+        printf("signaled\n");
       } else {
         tail3->next = proc;
         tail3 = proc;
@@ -337,6 +342,7 @@ static void addReadyProcess(pcb_t* proc) {
         head2 = proc;
         tail2 = proc;
         pthread_cond_signal(&ready_empty);
+        printf("signaled\n");
       } else {
         tail2->next = proc;
         tail2 = proc;
@@ -347,6 +353,7 @@ static void addReadyProcess(pcb_t* proc) {
         head = proc;
         tail = proc;
         pthread_cond_signal(&ready_empty);
+        printf("signaled\n");
       } else {
         tail->next = proc;
         tail = proc;
