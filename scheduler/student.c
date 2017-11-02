@@ -353,6 +353,10 @@ static void addReadyProcess(pcb_t* proc) {
     //make sure tail has null next pointer
     proc->next = NULL;
     pthread_mutex_unlock(&ready_mutex);
+    print_ready_queue(head);
+    print_ready_queue(head2);
+    print_ready_queue(head3);
+    print_ready_queue(head4);
     return;
   }
 }
@@ -462,4 +466,12 @@ static pcb_t* getMultiProcess(void) {
     pthread_mutex_unlock(&ready_mutex);
     return first;
   }
+}
+
+static void print_ready_queue(pcb_t* queue_start) {
+  while(queue_start != NULL) {
+    printf("%s  ", queue_start->name);
+    queue_start = queue_start->next;
+  }
+  printf("\n");
 }
