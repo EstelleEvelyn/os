@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 extern void idle(unsigned int cpu_id)
 {
   pthread_mutex_lock(&ready_mutex);
-  while (head == NULL) {
+  while (head == NULL && head2 == NULL && head3 == NULL & head4 == NULL) {
     printf("waiting\n");
     pthread_cond_wait(&ready_empty, &ready_mutex);
   }
