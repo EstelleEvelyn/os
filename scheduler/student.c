@@ -389,6 +389,7 @@ static void addStaticProcess(pcb_t* process) {
       if (next_proc->next->static_priority < process->static_priority) {
         process->next = next_proc->next;
         next_proc->next = process;
+        print_ready_queue(head);
         pthread_mutex_unlock(&ready_mutex);
         return;
       }
@@ -399,6 +400,7 @@ static void addStaticProcess(pcb_t* process) {
     process->next = NULL;
 
   }
+  print_ready_queue(head);
   pthread_mutex_unlock(&ready_mutex);
 
 }
