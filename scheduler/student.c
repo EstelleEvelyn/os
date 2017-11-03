@@ -374,6 +374,7 @@ static void addReadyProcess(pcb_t* proc) {
 
 static void addStaticProcess(pcb_t* process) {
   pthread_mutex_lock(&ready_mutex);
+  printf("Adding\n");
   print_ready_queue(head);
   if (head == NULL) {
     printf("There was nothing here\n");
