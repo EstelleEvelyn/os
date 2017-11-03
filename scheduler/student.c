@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 extern void idle(unsigned int cpu_id)
 {
   pthread_mutex_lock(&ready_mutex);
-  while (head == NULL && (alg != MultiLevelPrio || ( head2 == NULL && head3 == NULL & head4 == NULL)))  {
+  while (head == NULL && (alg != MultiLevelPrio || ( head2 == NULL && head3 == NULL & head4 == NULL))  {
     printf("waiting\n");
     pthread_cond_wait(&ready_empty, &ready_mutex);
   }
@@ -384,6 +384,7 @@ static pcb_t* getReadyProcess(void) {
 	  pthread_mutex_unlock(&ready_mutex);
 	  return NULL;
   }
+  
 
   // get first process to return and update head to point to next process
   pcb_t* first = head;
@@ -403,8 +404,6 @@ static int getLowerPriority(pcb_t *process) {
   for(curr_cpu = 0; curr_cpu < cpu_count; curr_cpu++) {
     pcb_t* compare_process = current[curr_cpu];
     pthread_mutex_unlock(&current_mutex);
-    printf("Current CPU %i has priority %i, compared to woken %i\n", curr_cpu, compare_process->static_priority, process->static_priority);
-    fflush(stdout);
     if(compare_process != NULL && compare_process->static_priority < process->static_priority) {
       //return cpu with lower priority
       return curr_cpu;
