@@ -367,6 +367,7 @@ static void addReadyProcess(pcb_t* proc) {
 
 static void addStaticProcess(pcb_t* process) {
   pthread_mutex_lock(&ready_mutex);
+  print_ready_queue(head);
   if (head == NULL) {
     head = process;
     tail = process;
@@ -395,7 +396,6 @@ static void addStaticProcess(pcb_t* process) {
     process->next = NULL;
 
   }
-  print_ready_queue(head);
   pthread_mutex_unlock(&ready_mutex);
 
 }
