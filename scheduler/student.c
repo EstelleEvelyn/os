@@ -277,6 +277,7 @@ extern void wake_up(pcb_t *process) {
     }
     process->state = PROCESS_READY;
     addReadyProcess(process);
+    print_ready_queue(head);
 }
 
 
