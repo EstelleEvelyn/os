@@ -163,6 +163,7 @@ static void schedule(unsigned int cpu_id) {
     } else {
       //get the next ready process
       proc = getReadyProcess();
+      printf("Process state in sched: %i", proc->state);
       if (proc != NULL) {
       }
     }
@@ -433,6 +434,7 @@ static pcb_t* getReadyProcess(void) {
   // if there was no next process, list is now empty, set tail to NULL
   if (head == NULL) tail = NULL;
 
+  printf("Process state in ready: %i", first->state);
   pthread_mutex_unlock(&ready_mutex);
   return first;
 }
