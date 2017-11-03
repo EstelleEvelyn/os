@@ -205,8 +205,10 @@ extern void preempt(unsigned int cpu_id) {
 
   running_process->state = PROCESS_READY;
   if (alg == StaticPriority){
+    running_process->state = PROCESS_READY;
     addReadyProcess(running_process);
   } else {
+    running_process->state = PROCESS_READY;
     addReadyProcess(running_process);
   }
   schedule(cpu_id);
