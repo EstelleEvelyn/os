@@ -264,13 +264,13 @@ extern void terminate(unsigned int cpu_id) {
  */
 extern void wake_up(pcb_t *process) {
     if(alg == StaticPriority) {
+      process->state = PROCESS_READY;
+      addStaticProcess(process);
       int preempt_cpu = getLowerPriority(process);
       if (preempt_cpu != -1) {
         force_preempt(preempt_cpu);
         printf("Forcing CPU %i \n", preempt_cpu);
       }
-      process->state = PROCESS_READY;
-      addStaticProcess(process);
     } else {
       //if woken up from IO wait in MLFS, give higher priority
       if (process->state == PROCESS_WAITING && alg == MultiLevelPrio){
