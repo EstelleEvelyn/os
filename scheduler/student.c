@@ -164,7 +164,7 @@ static void schedule(unsigned int cpu_id) {
       //get the next ready process
       proc = getReadyProcess();
       if (proc != NULL) {
-        printf("the process I got was %s", proc->name);
+        printf("the process I got was %s\n", proc->name);
       }
     }
 
@@ -432,6 +432,7 @@ static pcb_t* getReadyProcess(void) {
 
   // get first process to return and update head to point to next process
   pcb_t* first = head;
+  printf("Getting ready process %s\n", first->name);
   head = first->next;
 
   // if there was no next process, list is now empty, set tail to NULL
