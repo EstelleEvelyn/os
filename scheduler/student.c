@@ -444,12 +444,17 @@ static int getLowerPriority(pcb_t *process) {
   for(curr_cpu = 0; curr_cpu < cpu_count; curr_cpu++) {
     pcb_t* compare_process = current[curr_cpu];
     pthread_mutex_unlock(&current_mutex);
-    if(compare_process != NULL) {
-      printf("Curr_cpu : %i, compare_prio: %i, process_prio: %i\n", curr_cpu, compare_process->static_priority, process->static_priority);
-    }
-    if(compare_process == NULL || compare_process->static_priority < process->static_priority) {
+    if(compare_process == NULL) {
       //return cpu with lower priority
-      printf("returning %i\n", curr_cpu);
+      return curr_cpu;
+    }
+  }
+  //none were idle, look for lower priority
+  for(curr_cpu = 0; curr_cpu < cpu_count; curr_cpu++) {
+    pcb_t* compare_process = current[curr_cpu];
+    pthread_mutex_unlock(&current_mutex);
+    if(compare_process->static_priority < process->static_priority) {
+      //return cpu with lower priority
       return curr_cpu;
     }
   }
