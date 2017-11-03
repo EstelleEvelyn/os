@@ -163,7 +163,9 @@ static void schedule(unsigned int cpu_id) {
     } else {
       //get the next ready process
       proc = getReadyProcess();
-      printf("the process I got was %s", proc->name);
+      if (proc != NULL) {
+        printf("the process I got was %s", proc->name);
+      }
     }
 
     //put new process on cpu
