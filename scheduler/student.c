@@ -376,11 +376,13 @@ static void addStaticProcess(pcb_t* process) {
   pthread_mutex_lock(&ready_mutex);
   print_ready_queue(head);
   if (head == NULL) {
+    printf("There was nothing here\n");
     head = process;
     tail = process;
     // if list was empty may need to wake up idle process
     pthread_cond_signal(&ready_empty);
   } else {
+    printf("starting search\n");
     pcb_t* next_proc = head;
     //higher priority than front of queue
     if (next_proc->static_priority < process->static_priority) {
@@ -391,14 +393,18 @@ static void addStaticProcess(pcb_t* process) {
     //whose next process has lower priority
     while(next_proc->next != NULL) {
       if (next_proc->next->static_priority < process->static_priority) {
+        printf("found appropriate prio\n");
         process->next = next_proc->next;
         next_proc->next = process;
         print_ready_queue(head);
         return;
       }
+      printf("checking next proc");
       next_proc = next_proc->next;
 
     }
+    print_ready_queue();
+    printf("left loop, setting %i to new proc", next_proc->name);
     next_proc->next = process;
     process->next = NULL;
 
