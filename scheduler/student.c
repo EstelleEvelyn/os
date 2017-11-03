@@ -399,6 +399,7 @@ static void addStaticProcess(pcb_t* process) {
         process->next = next_proc->next;
         next_proc->next = process;
         print_ready_queue(head);
+        pthread_mutex_unlock(&ready_mutex);
         return;
       }
       printf("checking next proc");
