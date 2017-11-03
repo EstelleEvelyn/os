@@ -266,11 +266,10 @@ extern void wake_up(pcb_t *process) {
     if(alg == StaticPriority) {
       int preempt_cpu = getLowerPriority(process);
       if (preempt_cpu != -1) {
-        printf("forcing\n");
         force_preempt(preempt_cpu);
-        process->state = PROCESS_READY;
-        addStaticProcess(process);
       }
+      process->state = PROCESS_READY;
+      addStaticProcess(process);
     } else {
       //if woken up from IO wait in MLFS, give higher priority
       if (process->state == PROCESS_WAITING && alg == MultiLevelPrio){
