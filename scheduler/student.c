@@ -163,8 +163,8 @@ static void schedule(unsigned int cpu_id) {
     } else {
       //get the next ready process
       proc = getReadyProcess();
-      printf("Process state in sched: %i", proc->state);
       if (proc != NULL) {
+        printf("Process state in sched: %i", proc->state);
       }
     }
 
