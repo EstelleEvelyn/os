@@ -390,6 +390,7 @@ static void addStaticProcess(pcb_t* process) {
     if (next_proc->static_priority < process->static_priority) {
       process->next = head;
       head = process;
+      printf("The nes head is %s\n", head->name);
     }
     //search for process whose priority is higher than added process but
     //whose next process has lower priority
