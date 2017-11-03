@@ -203,7 +203,7 @@ extern void preempt(unsigned int cpu_id) {
 
   running_process->state = PROCESS_READY;
   if (alg == StaticPriority){
-    printf("Entered preempt\n");
+    printf("Entered preempt on CPU %i with process %s\n", cpu_id, running_process->name);
     addStaticProcess(running_process);
     printf("Left preempt\n");
   } else {
@@ -269,7 +269,7 @@ extern void wake_up(pcb_t *process) {
       process->state = PROCESS_READY;
       printf("woke\n");
       addStaticProcess(process);
-      printf("slept");
+      printf("slept\n");
       int preempt_cpu = getLowerPriority(process);
       if (preempt_cpu != -1) {
         force_preempt(preempt_cpu);
