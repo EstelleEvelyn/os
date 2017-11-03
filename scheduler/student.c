@@ -265,11 +265,7 @@ extern void wake_up(pcb_t *process) {
           pthread_mutex_unlock(&current_mutex);
           force_preempt(preempt_cpu);
         }
-        current[preempt_cpu] = process;
         pthread_mutex_unlock(&current_mutex);
-        printf("Gonna run this process\n");
-        process->state = PROCESS_RUNNING;
-      }  else {
         process->state = PROCESS_READY;
         addReadyProcess(process);
       }
@@ -283,7 +279,6 @@ extern void wake_up(pcb_t *process) {
       process->state = PROCESS_READY;
       addReadyProcess(process);
     }
-
     print_ready_queue(head);
 }
 
@@ -366,8 +361,40 @@ static void addReadyProcess(pcb_t* proc) {
     //make sure tail has null next pointer
     proc->next = NULL;
     pthread_mutex_unlock(&ready_mutex);
-    return;
   }
+}
+
+static void addStaticProcess(pcb_t* process) {
+  pthread_mutex_lock(&ready_mutex);
+  if (head == NULL) {
+    head = process;
+    tail = process;
+    // if list was empty may need to wake up idle process
+    pthread_cond_signal(&ready_empty);
+  } else {
+    pcb_t* next_proc = head;
+    //higher priority than front of queue
+    if (next_proc->static_priority < process->static_priority) {
+      process->next = head;
+      head = process;
+    }
+    //search for process whose priority is higher than added process but
+    //whose next process has lower priority
+    while(next_proc->next != NULL) {
+      if (next_proc->next->static_priority < process->static_priority) {
+        process->next = next_proc->next;
+        next_proc->next = process;
+        return;
+      }
+      next_proc = next_proc->next;
+    }
+    next_proc->nect = process;
+    process->next = NULL;
+
+  }
+
+  pthread_mutex_unlock(&ready_mutex);
+
 }
 
 
