@@ -162,6 +162,7 @@ static void schedule(unsigned int cpu_id) {
       proc = getMultiProcess();
     } else {
       //get the next ready process
+      print_ready_queue(head);
       proc = getReadyProcess();
       if (proc != NULL) {
       }
