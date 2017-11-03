@@ -203,7 +203,7 @@ extern void preempt(unsigned int cpu_id) {
 
   running_process->state = PROCESS_READY;
   if (alg == StaticPriority){
-    printf("Process %s in %i", process->state, process->state);
+    printf("Process %s in %i", process->name, process->state);
     addStaticProcess(running_process);
   } else {
     addReadyProcess(running_process);
@@ -270,7 +270,7 @@ extern void wake_up(pcb_t *process) {
       if (preempt_cpu != -1) {
         force_preempt(preempt_cpu);
       }
-      printf("Process %s in %i", process->state, process->state);
+      printf("Process %s in %i", process->name, process->state);
       addStaticProcess(process);
     } else {
       //if woken up from IO wait in MLFS, give higher priority
