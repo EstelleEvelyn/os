@@ -259,15 +259,6 @@ extern void terminate(unsigned int cpu_id) {
  */
 extern void wake_up(pcb_t *process) {
     //if woken up from IO wait in MLFS, give higher priority
-    if (process->state == PROCESS_WAITING && alg == MultiLevelPrio){
-      if (process->temp_priority < 4) {
-        process->temp_priority++;
-      }
-    }
-    process->state = PROCESS_READY;
-    addReadyProcess(process);
-
-
     if(alg == StaticPriority) {
       int preempt_cpu = getLowerPriority(process);
       if (preempt_cpu != -1) {
@@ -277,6 +268,15 @@ extern void wake_up(pcb_t *process) {
         pthread_mutex_unlock(&current_mutex);
         process->state = PROCESS_RUNNING;
       }
+    } else {
+    if (process->state == PROCESS_WAITING && alg == MultiLevelPrio){
+      if (process->temp_priority < 4) {
+        process->temp_priority++;
+      }
+    }
+    process->state = PROCESS_READY;
+    addReadyProcess(process);
+
     }
 }
 
