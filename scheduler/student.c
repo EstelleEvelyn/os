@@ -257,17 +257,20 @@ extern void terminate(unsigned int cpu_id) {
  * THIS FUNCTION IS PARTIALLY COMPLETED - REQUIRES MODIFICATION
  */
 extern void wake_up(pcb_t *process) {
-    //if woken up from IO wait in MLFS, give higher priority
     if(alg == StaticPriority) {
       int preempt_cpu = getLowerPriority(process);
       if (preempt_cpu != -1) {
-        force_preempt(preempt_cpu);
         pthread_mutex_lock(&current_mutex);
+        if (current[preempt_cpu] != NULL) {
+          pthread_mutex_unlock(&currentmutex);
+          force_preempt(preempt_cpu);
+        }
         current[preempt_cpu] = process;
         pthread_mutex_unlock(&current_mutex);
         process->state = PROCESS_RUNNING;
       }
     } else {
+      //if woken up from IO wait in MLFS, give higher priority
       if (process->state == PROCESS_WAITING && alg == MultiLevelPrio){
         if (process->temp_priority < 4) {
           process->temp_priority++;
@@ -406,7 +409,7 @@ static int getLowerPriority(pcb_t *process) {
     if(compare_process != NULL) {
       printf("Curr_cpu : %i, compare_prio: %i, process_prio: %i\n", curr_cpu, compare_process->static_priority, process->static_priority);
     }
-    if(compare_process != NULL && compare_process->static_priority < process->static_priority) {
+    if(compare_process == NULL || compare_process->static_priority < process->static_priority) {
       //return cpu with lower priority
       printf("returning %i\n", curr_cpu);
       return curr_cpu;
