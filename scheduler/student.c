@@ -392,17 +392,18 @@ static void addStaticProcess(pcb_t* process) {
     //search for process whose priority is higher than added process but
     //whose next process has lower priority
     while(next_proc->next != NULL) {
+      printf("Is %i higher that %i?\n", process->static_priority, next_proc->next->static_priority);
       if (next_proc->next->static_priority < process->static_priority) {
         process->next = next_proc->next;
         next_proc->next = process;
         pthread_mutex_unlock(&ready_mutex);
         return;
       }
-      printf("It doesn't go between %s and %s", next_proc->name, next_proc->next->name);
+      printf("It doesn't go between %s and %s\n", next_proc->name, next_proc->next->name);
       next_proc = next_proc->next;
 
     }
-    printf("Then it must go after %s", next_proc->name);
+    printf("Then it must go after %s\n", next_proc->name);
     next_proc->next = process;
     process->next = NULL;
     print_ready_queue(head);
