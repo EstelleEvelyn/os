@@ -203,7 +203,7 @@ extern void preempt(unsigned int cpu_id) {
 
   running_process->state = PROCESS_READY;
   if (alg == StaticPriority){
-    printf("Process %s in %i", process->name, process->state);
+    printf("Process %s in %i", running_process->name, running_process->state);
     addStaticProcess(running_process);
   } else {
     addReadyProcess(running_process);
