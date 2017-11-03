@@ -203,7 +203,9 @@ extern void preempt(unsigned int cpu_id) {
 
   running_process->state = PROCESS_READY;
   if (alg == StaticPriority){
+    printf("Entered preempt\n");
     addStaticProcess(running_process);
+    printf("Left preempt\n");
   } else {
     addReadyProcess(running_process);
   }
@@ -265,7 +267,9 @@ extern void terminate(unsigned int cpu_id) {
 extern void wake_up(pcb_t *process) {
     if(alg == StaticPriority) {
       process->state = PROCESS_READY;
+      printf("woke\n");
       addStaticProcess(process);
+      printf("slept");
       int preempt_cpu = getLowerPriority(process);
       if (preempt_cpu != -1) {
         force_preempt(preempt_cpu);
@@ -376,7 +380,6 @@ static void addStaticProcess(pcb_t* process) {
   } else {
     pcb_t* next_proc = head;
     //higher priority than front of queue
-    printf("comparing %s to %s\n", next_proc->name, process->name);
     if (next_proc->static_priority < process->static_priority) {
       process->next = head;
       head = process;
@@ -384,7 +387,6 @@ static void addStaticProcess(pcb_t* process) {
     //search for process whose priority is higher than added process but
     //whose next process has lower priority
     while(next_proc->next != NULL) {
-      printf("comparing %s to %s\n", next_proc->next->name, process->name);
       if (next_proc->next->static_priority < process->static_priority) {
         process->next = next_proc->next;
         next_proc->next = process;
@@ -392,12 +394,10 @@ static void addStaticProcess(pcb_t* process) {
         return;
       }
       next_proc = next_proc->next;
-      print_ready_queue(head);
 
     }
     next_proc->next = process;
     process->next = NULL;
-    print_ready_queue(head);
 
   }
   pthread_mutex_unlock(&ready_mutex);
