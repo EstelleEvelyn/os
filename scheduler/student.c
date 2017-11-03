@@ -164,7 +164,6 @@ static void schedule(unsigned int cpu_id) {
       //get the next ready process
       proc = getReadyProcess();
       if (proc != NULL) {
-        printf("the process I got was %s\n", proc->name);
       }
     }
 
@@ -206,9 +205,7 @@ extern void preempt(unsigned int cpu_id) {
 
   running_process->state = PROCESS_READY;
   if (alg == StaticPriority){
-    printf("Entered preempt on CPU %i with process %s\n", cpu_id, running_process->name);
     addStaticProcess(running_process);
-    printf("Left preempt\n");
   } else {
     addReadyProcess(running_process);
   }
@@ -270,13 +267,10 @@ extern void terminate(unsigned int cpu_id) {
 extern void wake_up(pcb_t *process) {
     if(alg == StaticPriority) {
       process->state = PROCESS_READY;
-      printf("woke\n");
       addStaticProcess(process);
-      printf("slept\n");
       int preempt_cpu = getLowerPriority(process);
       if (preempt_cpu != -1) {
         force_preempt(preempt_cpu);
-        printf("Forcing CPU %i \n", preempt_cpu);
       }
     } else {
       //if woken up from IO wait in MLFS, give higher priority
@@ -373,18 +367,14 @@ static void addReadyProcess(pcb_t* proc) {
 }
 
 static void addStaticProcess(pcb_t* process) {
-  printf("Adding\n");
+
   pthread_mutex_lock(&ready_mutex);
-  printf("Adding\n");
-  print_ready_queue(head);
   if (head == NULL) {
-    printf("There was nothing here\n");
     head = process;
     tail = process;
     // if list was empty may need to wake up idle process
     pthread_cond_signal(&ready_empty);
   } else {
-    printf("starting search\n");
     pcb_t* next_proc = head;
     //higher priority than front of queue
     if (next_proc->static_priority < process->static_priority) {
@@ -395,19 +385,14 @@ static void addStaticProcess(pcb_t* process) {
     //whose next process has lower priority
     while(next_proc->next != NULL) {
       if (next_proc->next->static_priority < process->static_priority) {
-        printf("found appropriate prio\n");
         process->next = next_proc->next;
         next_proc->next = process;
-        print_ready_queue(head);
         pthread_mutex_unlock(&ready_mutex);
         return;
       }
-      printf("checking next proc");
       next_proc = next_proc->next;
 
     }
-    print_ready_queue(head);
-    printf("left loop, setting %s to new proc", next_proc->name);
     next_proc->next = process;
     process->next = NULL;
 
@@ -441,7 +426,6 @@ static pcb_t* getReadyProcess(void) {
 
   // get first process to return and update head to point to next process
   pcb_t* first = head;
-  printf("Getting ready process %s\n", first->name);
   head = first->next;
 
   // if there was no next process, list is now empty, set tail to NULL
