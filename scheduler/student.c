@@ -163,9 +163,6 @@ static void schedule(unsigned int cpu_id) {
     } else {
       //get the next ready process
       proc = getReadyProcess();
-      if (proc != NULL) {
-        printf("Process %s state in sched: %i\n", proc->name, proc->state);
-      }
     }
 
     //put new process on cpu
@@ -206,6 +203,7 @@ extern void preempt(unsigned int cpu_id) {
 
   running_process->state = PROCESS_READY;
   if (alg == StaticPriority){
+    printf("Process %s in %i", process->state, process->state);
     addStaticProcess(running_process);
   } else {
     addReadyProcess(running_process);
@@ -272,6 +270,7 @@ extern void wake_up(pcb_t *process) {
       if (preempt_cpu != -1) {
         force_preempt(preempt_cpu);
       }
+      printf("Process %s in %i", process->state, process->state);
       addStaticProcess(process);
     } else {
       //if woken up from IO wait in MLFS, give higher priority
@@ -432,8 +431,6 @@ static pcb_t* getReadyProcess(void) {
 
   // if there was no next process, list is now empty, set tail to NULL
   if (head == NULL) tail = NULL;
-
-  printf("Process %s state in ready: %i\n",first->name, first->state);
   pthread_mutex_unlock(&ready_mutex);
   return first;
 }
