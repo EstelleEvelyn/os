@@ -205,10 +205,8 @@ extern void preempt(unsigned int cpu_id) {
 
   running_process->state = PROCESS_READY;
   if (alg == StaticPriority){
-    running_process->state = PROCESS_READY;
-    addReadyProcess(running_process);
+    addStaticProcess(running_process);
   } else {
-    running_process->state = PROCESS_READY;
     addReadyProcess(running_process);
   }
   schedule(cpu_id);
@@ -269,7 +267,7 @@ extern void terminate(unsigned int cpu_id) {
 extern void wake_up(pcb_t *process) {
     if(alg == StaticPriority) {
       process->state = PROCESS_READY;
-      addReadyProcess(process);
+      addStaticProcess(process);
       int preempt_cpu = getLowerPriority(process);
       if (preempt_cpu != -1) {
         force_preempt(preempt_cpu);
@@ -295,11 +293,6 @@ extern void wake_up(pcb_t *process) {
  * it takes a pointer to a process as an argument and has no return
  */
 static void addReadyProcess(pcb_t* proc) {
-
-  if (alg== StaticPriority) {
-      addStaticProcess(proc);
-      return;
-  }
 
   // ensure no other process can access ready list while we update it
   pthread_mutex_lock(&ready_mutex);
