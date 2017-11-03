@@ -266,12 +266,8 @@ extern void wake_up(pcb_t *process) {
     if(alg == StaticPriority) {
       int preempt_cpu = getLowerPriority(process);
       if (preempt_cpu != -1) {
-        pthread_mutex_lock(&current_mutex);
-        if (current[preempt_cpu] != NULL) {
-          pthread_mutex_unlock(&current_mutex);
-          force_preempt(preempt_cpu);
-        }
-        pthread_mutex_unlock(&current_mutex);
+        printf("forcing\n");
+        force_preempt(preempt_cpu);
         process->state = PROCESS_READY;
         addStaticProcess(process);
       }
@@ -445,8 +441,8 @@ static int getLowerPriority(pcb_t *process) {
     pcb_t* compare_process = current[curr_cpu];
     pthread_mutex_unlock(&current_mutex);
     if(compare_process == NULL) {
-      //return cpu with lower priority
-      return curr_cpu;
+      //there's an idle cpu- no preemption
+      return -1;
     }
   }
   //none were idle, look for lower priority
