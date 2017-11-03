@@ -199,8 +199,13 @@ extern void preempt(unsigned int cpu_id) {
     running_process->temp_priority--;
   }
   //put process into ready queue
+
   running_process->state = PROCESS_READY;
-  addReadyProcess(running_process);
+  if (alg == StaticPriority){
+    addStaticProcess(running_process);
+  } else {
+    addReadyProcess(running_process);
+  }
   schedule(cpu_id);
 }
 
@@ -267,7 +272,7 @@ extern void wake_up(pcb_t *process) {
         }
         pthread_mutex_unlock(&current_mutex);
         process->state = PROCESS_READY;
-        addReadyProcess(process);
+        addStaticProcess(process);
       }
     } else {
       //if woken up from IO wait in MLFS, give higher priority
