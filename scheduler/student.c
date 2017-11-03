@@ -388,7 +388,7 @@ static void addStaticProcess(pcb_t* process) {
       }
       next_proc = next_proc->next;
     }
-    next_proc->nect = process;
+    next_proc->next = process;
     process->next = NULL;
 
   }
