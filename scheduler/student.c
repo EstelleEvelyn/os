@@ -405,7 +405,7 @@ static void addStaticProcess(pcb_t* process) {
 
     }
     print_ready_queue(head);
-    printf("left loop, setting %i to new proc", next_proc->name);
+    printf("left loop, setting %s to new proc", next_proc->name);
     next_proc->next = process;
     process->next = NULL;
 
