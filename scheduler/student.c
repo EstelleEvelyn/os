@@ -384,6 +384,7 @@ static void addStaticProcess(pcb_t* process) {
   } else {
     pcb_t* next_proc = head;
     //higher priority than front of queue
+    printf("Is %i higher that %i?\n", process->static_priority, next_proc->static_priority);
     if (next_proc->static_priority < process->static_priority) {
       process->next = head;
       head = process;
