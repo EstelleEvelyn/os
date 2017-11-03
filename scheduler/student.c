@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 extern void idle(unsigned int cpu_id)
 {
   pthread_mutex_lock(&ready_mutex);
-  while (head == NULL && (alg != MultiLevelPrio || ( head2 == NULL && head3 == NULL & head4 == NULL))  {
+  while (head == NULL && (alg != MultiLevelPrio || ( head2 == NULL && head3 == NULL & head4 == NULL)))  {
     printf("waiting\n");
     pthread_cond_wait(&ready_empty, &ready_mutex);
   }
@@ -384,7 +384,7 @@ static pcb_t* getReadyProcess(void) {
 	  pthread_mutex_unlock(&ready_mutex);
 	  return NULL;
   }
-  
+
 
   // get first process to return and update head to point to next process
   pcb_t* first = head;
