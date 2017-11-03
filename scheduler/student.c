@@ -281,7 +281,6 @@ extern void wake_up(pcb_t *process) {
       process->state = PROCESS_READY;
       addReadyProcess(process);
     }
-    print_ready_queue(head);
 }
 
 
@@ -396,7 +395,7 @@ static void addStaticProcess(pcb_t* process) {
     process->next = NULL;
 
   }
-
+  print_ready_queue(head);
   pthread_mutex_unlock(&ready_mutex);
 
 }
