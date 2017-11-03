@@ -90,7 +90,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Usage: ./os-sim <# CPUs> [ -r <time slice> | -p ]\n"
             "    Default : FIFO Scheduler\n"
             "         -r : Round-Robin Scheduler (must also give time slice)\n"
-            "         -p : Static Priority Scheduler\n\n");
+            "         -p : Static Priority Scheduler\n"
+            "         -m : Multi Level Feedback Scheduler\n");
         return -1;
     }
 	fflush(stdout);
@@ -130,7 +131,7 @@ int main(int argc, char *argv[])
 extern void idle(unsigned int cpu_id)
 {
   pthread_mutex_lock(&ready_mutex);
-  while (head == NULL && head2 == NULL && head3 == NULL & head4 == NULL) {
+  while (head == NULL && (alg != MultiLevelPrio || ( head2 == NULL && head3 == NULL & head4 == NULL))  {
     printf("waiting\n");
     pthread_cond_wait(&ready_empty, &ready_mutex);
   }
@@ -320,7 +321,6 @@ static void addReadyProcess(pcb_t* proc) {
         head4 = proc;
         tail4 = proc;
         pthread_cond_signal(&ready_empty);
-        printf("signaled\n");
       } else {
         tail4->next = proc;
         tail4 = proc;
@@ -331,7 +331,6 @@ static void addReadyProcess(pcb_t* proc) {
         head3 = proc;
         tail3 = proc;
         pthread_cond_signal(&ready_empty);
-        printf("signaled\n");
       } else {
         tail3->next = proc;
         tail3 = proc;
@@ -342,7 +341,6 @@ static void addReadyProcess(pcb_t* proc) {
         head2 = proc;
         tail2 = proc;
         pthread_cond_signal(&ready_empty);
-        printf("signaled\n");
       } else {
         tail2->next = proc;
         tail2 = proc;
@@ -353,7 +351,6 @@ static void addReadyProcess(pcb_t* proc) {
         head = proc;
         tail = proc;
         pthread_cond_signal(&ready_empty);
-        printf("signaled\n");
       } else {
         tail->next = proc;
         tail = proc;
@@ -362,10 +359,6 @@ static void addReadyProcess(pcb_t* proc) {
     //make sure tail has null next pointer
     proc->next = NULL;
     pthread_mutex_unlock(&ready_mutex);
-    print_ready_queue(head);
-    print_ready_queue(head2);
-    print_ready_queue(head3);
-    print_ready_queue(head4);
     return;
   }
 }
@@ -410,6 +403,7 @@ static int getLowerPriority(pcb_t *process) {
   for(curr_cpu = 0; curr_cpu < cpu_count; curr_cpu++) {
     pcb_t* compare_process = current[curr_cpu];
     pthread_mutex_unlock(&current_mutex);
+    printf("Current CPU %i has priority %i, compared to woken %i\n", curr_cpu, compare_process->static_priority, process->static_priority);
     if(compare_process != NULL && compare_process->static_priority < process->static_priority) {
       //return cpu with lower priority
       return curr_cpu;
