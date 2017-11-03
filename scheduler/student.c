@@ -388,9 +388,12 @@ static void addStaticProcess(pcb_t* process) {
       if (next_proc->next->static_priority < process->static_priority) {
         process->next = next_proc->next;
         next_proc->next = process;
+        print_ready_queue(head);
         return;
       }
       next_proc = next_proc->next;
+      print_ready_queue(head);
+
     }
     next_proc->next = process;
     process->next = NULL;
