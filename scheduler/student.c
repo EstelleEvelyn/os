@@ -404,6 +404,7 @@ static int getLowerPriority(pcb_t *process) {
     pcb_t* compare_process = current[curr_cpu];
     pthread_mutex_unlock(&current_mutex);
     printf("Current CPU %i has priority %i, compared to woken %i\n", curr_cpu, compare_process->static_priority, process->static_priority);
+    fflush(stdout);
     if(compare_process != NULL && compare_process->static_priority < process->static_priority) {
       //return cpu with lower priority
       return curr_cpu;
