@@ -267,6 +267,7 @@ extern void wake_up(pcb_t *process) {
       int preempt_cpu = getLowerPriority(process);
       if (preempt_cpu != -1) {
         force_preempt(preempt_cpu);
+        printf("Forcing CPU %i \n", preempt_cpu);
       }
       process->state = PROCESS_READY;
       addStaticProcess(process);
