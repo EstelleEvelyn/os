@@ -268,6 +268,9 @@ extern void wake_up(pcb_t *process) {
         current[preempt_cpu] = process;
         pthread_mutex_unlock(&current_mutex);
         process->state = PROCESS_RUNNING;
+      }  else {
+        process->state = PROCESS_READY;
+        addReadyProcess(process);
       }
     } else {
       //if woken up from IO wait in MLFS, give higher priority
@@ -276,9 +279,10 @@ extern void wake_up(pcb_t *process) {
           process->temp_priority++;
         }
       }
+      process->state = PROCESS_READY;
+      addReadyProcess(process);
     }
-    process->state = PROCESS_READY;
-    addReadyProcess(process);
+
     print_ready_queue(head);
 }
 
