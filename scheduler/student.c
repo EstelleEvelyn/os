@@ -404,6 +404,7 @@ static void addStaticProcess(pcb_t* process) {
     printf("Then it must go after %s", next_proc->name);
     next_proc->next = process;
     process->next = NULL;
+    print_ready_queue(head);
 
   }
   pthread_mutex_unlock(&ready_mutex);
