@@ -376,8 +376,6 @@ static void addReadyProcess(pcb_t* proc) {
 static void addStaticProcess(pcb_t* process) {
 
   pthread_mutex_lock(&ready_mutex);
-  print_ready_queue(head);
-  printf("Going to add %s\n", process->name);
   if (head == NULL) {
     head = process;
     tail = process;
@@ -386,32 +384,26 @@ static void addStaticProcess(pcb_t* process) {
   } else {
     pcb_t* next_proc = head;
     //higher priority than front of queue
-    printf("Is %i higher than head %i?\n", process->static_priority, next_proc->static_priority);
     if (next_proc->static_priority < process->static_priority) {
       process->next = head;
       head = process;
       pthread_mutex_unlock(&ready_mutex);
       return;
-      printf("The new head is %s\n", head->name);
     }
     //search for process whose priority is higher than added process but
     //whose next process has lower priority
     while(next_proc->next != NULL) {
-      printf("Is %i higher than %i?\n", process->static_priority, next_proc->next->static_priority);
       if (next_proc->next->static_priority < process->static_priority) {
         process->next = next_proc->next;
         next_proc->next = process;
         pthread_mutex_unlock(&ready_mutex);
         return;
       }
-      printf("It doesn't go between %s and %s\n", next_proc->name, next_proc->next->name);
       next_proc = next_proc->next;
 
     }
-    printf("Then it must go after %s\n", next_proc->name);
     next_proc->next = process;
     process->next = NULL;
-    print_ready_queue(head);
 
   }
   pthread_mutex_unlock(&ready_mutex);
