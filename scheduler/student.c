@@ -132,7 +132,6 @@ extern void idle(unsigned int cpu_id)
 {
   pthread_mutex_lock(&ready_mutex);
   while (head == NULL && (alg != MultiLevelPrio || ( head2 == NULL && head3 == NULL & head4 == NULL)))  {
-    printf("waiting\n");
     pthread_cond_wait(&ready_empty, &ready_mutex);
   }
   pthread_mutex_unlock(&ready_mutex);
@@ -409,6 +408,7 @@ static int getLowerPriority(pcb_t *process) {
     }
     if(compare_process != NULL && compare_process->static_priority < process->static_priority) {
       //return cpu with lower priority
+      printf("returning %i\n", curr_cpu);
       return curr_cpu;
     }
   }
