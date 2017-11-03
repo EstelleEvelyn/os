@@ -295,7 +295,7 @@ extern void wake_up(pcb_t *process) {
  */
 static void addReadyProcess(pcb_t* proc) {
 
-  if (alg== StaticPriority {
+  if (alg== StaticPriority) {
       addStaticProcess(proc);
       return;
   }
