@@ -369,6 +369,7 @@ static void addReadyProcess(pcb_t* proc) {
 static void addStaticProcess(pcb_t* process) {
 
   pthread_mutex_lock(&ready_mutex);
+  printf("Process %s has status %i", process->name, process->state);
   if (head == NULL) {
     head = process;
     tail = process;
