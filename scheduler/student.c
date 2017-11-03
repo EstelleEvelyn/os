@@ -162,7 +162,6 @@ static void schedule(unsigned int cpu_id) {
       proc = getMultiProcess();
     } else {
       //get the next ready process
-      print_ready_queue(head);
       proc = getReadyProcess();
       if (proc != NULL) {
       }
@@ -375,7 +374,8 @@ static void addReadyProcess(pcb_t* proc) {
 static void addStaticProcess(pcb_t* process) {
 
   pthread_mutex_lock(&ready_mutex);
-  printf("Process %s has status %i\n", process->name, process->state);
+  print_ready_queue(head);
+  printf("Going to add %s\n", process->name);
   if (head == NULL) {
     head = process;
     tail = process;
@@ -394,18 +394,18 @@ static void addStaticProcess(pcb_t* process) {
       if (next_proc->next->static_priority < process->static_priority) {
         process->next = next_proc->next;
         next_proc->next = process;
-        print_ready_queue(head);
         pthread_mutex_unlock(&ready_mutex);
         return;
       }
+      printf("It doesn't go between %s and %s", next_proc->name, next_proc->next->name);
       next_proc = next_proc->next;
 
     }
+    printf("Then it must go after %s", next_proc->name);
     next_proc->next = process;
     process->next = NULL;
 
   }
-  print_ready_queue(head);
   pthread_mutex_unlock(&ready_mutex);
 
 }
