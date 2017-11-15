@@ -24,7 +24,7 @@ pfn_t pagetable_lookup(vpn_t vpn, int write) {
     */
     pte_t pte = current_pagetable[vpn];
     pfn = pte->pfn;
-    if (int current_pagetable[vpn]->valid != 1) {
+    if (current_pagetable[vpn]->valid != 1) {
       count_pagefaults++;
       pfn = pagefault_handler();
     }
