@@ -24,14 +24,21 @@ pfn_t pagefault_handler(vpn_t request_vpn, int write) {
 
   /* Sanity Check */
   assert(current_pagetable != NULL);
+  printf("seg here\n");
 
   /* Find a free frame */
   victim_pfn = get_free_frame();
+  printf("seg here1\n");
+
   assert(victim_pfn < CPU_NUM_FRAMES); /* make sure the victim_pfn is valid */
+  printf("seg here2\n");
 
   /* Use the reverse lookup table to find the victim. */
   victim_vpn = rlt[victim_pfn].vpn;
+  printf("seg here3\n");
+
   victim_pcb = rlt[victim_pfn].pcb;
+  printf("seg here4\n");
 
   /*
    * FIX ME : Problem 4
@@ -41,11 +48,13 @@ pfn_t pagefault_handler(vpn_t request_vpn, int write) {
    * 2) Invalidate the page's entry in the victim's page table.
    * 3) Clear the victim page's TLB entry using the function tlb_clearone().
    */
+   printf("segfault here5\n");
+   fflush(stdout);
    if (victim_pcb != NULL) {
-     if (current_pagetable[victim_pfn.pagetable].dirty) {
-         page_to_disk(pfn, vpn, victim_pfn.pid);
+     if (victim_pcb->pagetable[victim_vpn].dirty) {
+         page_to_disk(victim_pfn, victim_vpn, victim_pcb->pid);
      }
-     victim_pfn.pagetable.valid = 0
+     victim_pcb->pagetable[victim_vpn].valid = 0;
      tlb_clearone(victim_vpn);
    }
 
@@ -58,6 +67,11 @@ pfn_t pagefault_handler(vpn_t request_vpn, int write) {
    * process' info instead (pcb and vpn)
    * Update the current process' page table (pfn and valid)
    */
+
+   rlt[victim_pfn].pcb = current;
+   rlt[victim_pfn].vpn = request_vpn;
+   current_pagetable[request_vpn].pfn = victim_pfn;
+   current_pagetable[request_vpn].valid = 1;
 
   /*
    * Retreive the page from disk. Note that is really a lie: we save pages in

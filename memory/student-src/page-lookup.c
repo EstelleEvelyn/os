@@ -1,6 +1,7 @@
 #include "swapfile.h"
 #include "statistics.h"
 #include "pagetable.h"
+#include <stdio.h>
 
 /*******************************************************************************
  * Looks up an address in the current page table. If the entry for the given
@@ -21,10 +22,11 @@ pfn_t pagetable_lookup(vpn_t vpn, int write) {
 	*   call pagefault_handler() (partially implemented already,
 	*        found in file page-fault.c, returns frame #) to get pfn
 	*   change pagetable entry to now be valid
-  // pte_t pte = current_pagetable[vpn];
-  // pfn = pte->pfn; */
+    */
+
     pfn = current_pagetable[vpn].pfn;
-    if (current_pagetable[vpn].valid != 1) {
+    if (!current_pagetable[vpn].valid) {
+      fflush(stdout);
       count_pagefaults++;
       pfn = pagefault_handler(vpn, write);
     }
