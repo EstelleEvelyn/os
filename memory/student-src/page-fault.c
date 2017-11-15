@@ -24,7 +24,7 @@ pfn_t pagefault_handler(vpn_t request_vpn, int write) {
 
   /* Sanity Check */
   assert(current_pagetable != NULL);
-  
+
   /* Find a free frame */
   victim_pfn = get_free_frame();
   assert(victim_pfn < CPU_NUM_FRAMES); /* make sure the victim_pfn is valid */
@@ -33,7 +33,7 @@ pfn_t pagefault_handler(vpn_t request_vpn, int write) {
   victim_vpn = rlt[victim_pfn].vpn;
   victim_pcb = rlt[victim_pfn].pcb;
 
-  /* 
+  /*
    * FIX ME : Problem 4
    * If victim page is occupied - if it is not the pcb will be NULL:
    *
@@ -41,13 +41,17 @@ pfn_t pagefault_handler(vpn_t request_vpn, int write) {
    * 2) Invalidate the page's entry in the victim's page table.
    * 3) Clear the victim page's TLB entry using the function tlb_clearone().
    */
-
+  if (victim_pcb != NULL) {
+    if (current_pagetable[victim_pfn->pagetable]->dirty) {
+        page_to_disk(pfn, vpn, victim_pfn);
+    }
+  }
   printf("PAGE FAULT (VPN %u), evicting (PFN %u VPN %u)\n", request_vpn,
       victim_pfn, victim_vpn);
 
- 
+
   /* FIX ME */
-  /* Update the reverse lookup table to replace the victim entry info with this 
+  /* Update the reverse lookup table to replace the victim entry info with this
    * process' info instead (pcb and vpn)
    * Update the current process' page table (pfn and valid)
    */
@@ -65,4 +69,3 @@ pfn_t pagefault_handler(vpn_t request_vpn, int write) {
 
   return victim_pfn;
 }
-

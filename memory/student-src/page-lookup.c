@@ -23,11 +23,11 @@ pfn_t pagetable_lookup(vpn_t vpn, int write) {
 	*   change pagetable entry to now be valid
   // pte_t pte = current_pagetable[vpn];
   // pfn = pte->pfn; */
-    pfn = current_pagetable->pfn;
-    if (current_pagetable[vpn]->valid != 1) {
+    pfn = current_pagetable[vpn].pfn;
+    if (current_pagetable[vpn].valid != 1) {
       count_pagefaults++;
-      pfn = pagefault_handler();
+      pfn = pagefault_handler(vpn, write);
     }
-    current_pagetable[vpn]->valid = 1;
+    current_pagetable[vpn].valid = 1;
     return pfn;
 }
