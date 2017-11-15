@@ -22,8 +22,8 @@ pfn_t pagetable_lookup(vpn_t vpn, int write) {
 	*        found in file page-fault.c, returns frame #) to get pfn
 	*   change pagetable entry to now be valid
     */
-    pte_t curr = current_pagetable[vpn];
-    pfn = curr->pfn;
+    pte_t pte = current_pagetable[vpn];
+    pfn = pte->pfn;
     if (int *current_pagetable[vpn]->valid != 1) {
       count_pagefaults++;
       pfn = pagefault_handler();

@@ -26,7 +26,7 @@ pfn_t get_free_frame(void);
 /*******************************************************************************
  * Page table entry.
  */
-typedef struct {
+typedef struct pte_t {
   pfn_t pfn;            /* Physical frame number */
   unsigned char valid;  /* Valid 'bit' */
   unsigned char dirty;  /* Dirty 'bit' */
@@ -44,7 +44,7 @@ extern pte_t *current_pagetable;
 #define CPU_NUM_PTE ((1<<16) / page_size)
 
 /*******************************************************************************
- * Number of frames in memory 
+ * Number of frames in memory
  */
 #define CPU_NUM_FRAMES (mem_size / page_size)
 
