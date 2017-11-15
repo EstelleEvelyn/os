@@ -26,7 +26,7 @@ pfn_t get_free_frame(void);
 /*******************************************************************************
  * Page table entry.
  */
-typedef struct pte_t {
+typedef struct {
   pfn_t pfn;            /* Physical frame number */
   unsigned char valid;  /* Valid 'bit' */
   unsigned char dirty;  /* Dirty 'bit' */
