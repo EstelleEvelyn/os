@@ -11,18 +11,22 @@
  * @return The physical frame number of the page we are accessing.
  */
 pfn_t pagetable_lookup(vpn_t vpn, int write) {
-   pfn_t pfn = 0; 
+   pfn_t pfn = 0;
 
-   /* FIX ME - Part 2 
+   /* FIX ME - Part 2
     * Determine the PFN corresponding to the passed in VPN.
     * current_pagetable variable accesses the process page table.
-    * if the pagetable entry is not valid: 
+    * if the pagetable entry is not valid:
 	*   increment count_pagefaults
-	*   call pagefault_handler() (partially implemented already, 
-	*        found in file page-fault.c, returns frame #) to get pfn 
+	*   call pagefault_handler() (partially implemented already,
+	*        found in file page-fault.c, returns frame #) to get pfn
 	*   change pagetable entry to now be valid
     */
-
-
-   return pfn;
+    pfn = current_pagetable[vpn]->pfn;
+    if (int current_pagetable[vpn]->valid != 1) {
+      count_pagefaults++;
+      pfn = pagefault_handler();
+    }
+    current_pagetable[vpn]->valid = 1;
+    return pfn;
 }

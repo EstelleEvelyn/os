@@ -2,7 +2,7 @@
 #define _STUDENT_PAGE_SPLITTING_H_
 
 /*******************************************************************************
- * Your assignment for problem 1 is to fix the following macros. 
+ * Your assignment for problem 1 is to fix the following macros.
  * Note: you can put any expression (equation) in the parentheses including
  * the use of any constants, global variables, and/or the given argument "addr"
  * HINT: global variable page_size tells you how many addresses a single page contains.
@@ -12,17 +12,17 @@
 
 /*******************************************************************************
  * Get the page number from a virtual address.
- * 
+ *
  * @param addr The virtual address.
  * @return     The virtual page number for this addres.
  */
-#define VADDR_PAGENUM(addr) (/*FIX ME*/ 0)
+#define VADDR_PAGENUM(addr) (addr/page_size)
 
 /*******************************************************************************
  * Get the offset for a particular address.
  * @param addr The virtual address.
  * @return     The offset into a page for the given virtual address.
  */
-#define VADDR_OFFSET(addr) (/*FIX ME*/ 0)
+#define VADDR_OFFSET(addr) (addr - addr/page_size)
 
 #endif/*_STUDENT_PAGE_SPLITTING_H_*/
