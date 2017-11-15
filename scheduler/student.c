@@ -203,7 +203,6 @@ extern void preempt(unsigned int cpu_id) {
 
   running_process->state = PROCESS_READY;
   if (alg == StaticPriority){
-    printf("Process %s in %i\n", running_process->name, running_process->state);
     addStaticProcess(running_process);
   } else {
     addReadyProcess(running_process);
@@ -270,7 +269,6 @@ extern void wake_up(pcb_t *process) {
       if (preempt_cpu != -1) {
         force_preempt(preempt_cpu);
       }
-      printf("Process %s in %i\n", process->name, process->state);
       addStaticProcess(process);
     } else {
       //if woken up from IO wait in MLFS, give higher priority
@@ -286,7 +284,7 @@ extern void wake_up(pcb_t *process) {
 
 /* The following 2 functions implement a FIFO ready queue of processes */
 
-/*
+/* 
  * addReadyProcess adds a process to the end of a pseudo linked list (each process
  * struct contains a pointer next that you can use to chain them together)
  * it takes a pointer to a process as an argument and has no return
