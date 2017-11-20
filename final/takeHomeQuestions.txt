@@ -1,0 +1,136 @@
+Scheduling
+
+1. SRTF is not used by real OS's because it is often difficult or impossible to
+determine which job has the shortest remaining time, and the resources required
+to determine the correct order would outweigh the resources saved by using SRTF.
+Additionally, this method could also lead to starvation of longer processes if
+shorter processes continually come up on the ready queue.
+
+2. A MLFQ scheduler is likely to perform better in a scenario where
+A lottery scheduler is likely to perform better in a scenario where
+
+3.
+    a. FIFO would lead to lower average completion time than RR if the shortest
+    processes just happened to be scheduled first. For example, if a 2-second process,
+    an 18-second and a 6-second process run in FIFO, with the 2-second process
+    scheduled first, then the 6-second, the average completion time is 12.6 seconds.
+    By contrast, if the same two processes ran RR with a time slice of 2 seconds,
+    the average completion time would be at least 14s.
+
+    b. FIFO scheduling can not result in a lower average start time than Round Robin
+    scheduling. With n processes, RR guarantees that by the nth timeslice that every
+    process will have started. For FIFO, the last process can not start until every
+    other process has completed, and assuming that at least one process takes more
+    than one timeslice, it is thus the case that the average start time must be later
+    for FIFO (note the average start times can be equal if every process is the same
+    duration or shorter than the timeslice.)
+
+    c. The same scenario as part (a.), but with the FIFO scheduling the 18-second
+    process first, then the 6-second, then the 2-second. The FIFO scheduler now has
+    an average completion time of 22.6s, while the RR scheduler has a lower average
+    completion time of no more than 15.3s.
+
+    d. RR scheduling will almost always lead to a lower average start time than FIFO.
+    Consider the preceding example again. RR will always have started the first process
+    by 0s, the 2nd by 2s, and the 3rd by 4s, resulting in an average start time of 2s.
+    Meanwhile, if FIFO schedules the longest process first, it has an average start
+    time of 14s.
+
+    e. Assuming both are running the same processes, and assuming overhead from
+    context switches is negligible, the throughput of RR and FIFO should be the same,
+    since the total amount of time to complete all processes doesn't change.
+
+
+--------
+Deadlock
+
+1.
+    a. See image labeled "deadlock_1a"
+
+    b. There is a cycle in the graph: P1->R1->P3->R2->P1
+
+    c. The system is not in a deadlock. If P4 completes and releases its instance
+    of R2, P3 can then obtain it and complete. Once it has done so (or once P2
+    completes independently), there will be an available instance of R1 for P1 to run.
+
+2. If the banker's algorithm finds that it's safe to allocate a resource to an
+existing thread, that indicates that there is a way for that resource to be allocated
+without creating deadlock.
+
+3. One method to prevent deadlock in a system without using any detection algorithm
+is to only acquire resources in a specified order. Thus, if P1 needs R1 and R2,
+P2 needs R2 and R3, and P3 needs R1 and R3, we will never have a situation where
+each Ri has Pi and not the other resource it needs, because P3 will not be able
+to acquire R3 without first acquiring R1, which P1 is holding.
+
+
+------
+Memory
+
+1.
+    a. When the process terminates, remove it from the list of active processes,
+    and add the starting index of the block it was in to the list of free blocks.
+
+    b. Reset valid bit to 0. Use VPN to find PFN and mark it empty or able to be
+    written over. Unlink VPN from PFN (reset value at VPN in index table, or allow
+    it to be written over).
+
+    c. Remove mapping to pid. If this PFN is used later, it should still map to
+    the same VPN, so that doesn't need to be reset.
+
+2.
+    a.
+        i. 4 non-compulsory misses. See attached image labeled "memory_2ai".
+        (Circles are non-compulsory misses)
+        ii. 3 non-compulsory misses. See attached image labeled "memory_2aii".
+        (Circles are non-compulsory misses, arrow is current clock hand position).
+
+    b. In order to avoid non-compulsory TLB misses, a page reference can only replace
+      an existing reference if its first instance occurs later than the last use
+      of the page it's evicting. 0 must be an initial entry in the TLB.
+      1, 2, 3 and 4 can only replace 0,  since every other page already in the TLB when
+      they are added will be referenced again. 5 can replace 0 and 1, 6 can replace
+      0, 1, 2, and 5, and 7 can replace any other page.
+      Thus, for no non-compulsory misses, we require 4 TLB entries.
+      Index 0: 0->4
+      Index 1: 1->5
+      Index 2: 2->6
+      Index 3: 3->7
+
+    c. For 4 TLB slots, true LRU causes 3 non-compulsory misses.
+
+
+____________
+File Systems
+
+1.
+    a. A 16-bit logical address allows us to address at most 2^16 = 65536 blocks.
+    This is about 131 mb.
+
+    b. 32 bits in the inode table gives us access to 2^32 addresses in the table.
+    Each address is 32 bits. So we have 2^32*32 = 17 gigabytes, which wouldn't even
+    fit on our hard drive.
+
+    c. There are 500,000 blocks in the hard drive. This would require 1gb/2kb = 2^19
+    entries in the FAT. Each of these entries would be 19 bits.
+
+2.
+    a. Assuming the next block is available, keep writing on the next block, and
+    update the appropriate block address and offset. If the next block is not
+    available, the whole file will either need to move somewhere where it is, or
+    you will have to copy the whole file to a larger open space.
+
+    b. Allocate a new block anywhere you can find one, then set the linking bit
+    of the current block to be the address of the new block
+
+    c. Find a free slot in the FAT. Allocate the associated block in memory. Link
+    the previous block's FAT entry to the new one.
+
+    d. First, see if there is some direct entry space available at an in the inode.
+    If so, start writing in this space and appropriately update the addressing in
+    the inode. If such space is not available, allocate elsewhere and have the file's
+    indirect table link to this new block.
+
+
+----------------------------
+Distributed Lock Acquisition
