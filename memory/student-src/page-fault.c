@@ -67,10 +67,17 @@ pfn_t pagefault_handler(vpn_t request_vpn, int write) {
    * process' info instead (pcb and vpn)
    * Update the current process' page table (pfn and valid)
    */
+   printf("segfault here6\n");
 
    rlt[victim_pfn].pcb = current;
+   printf("segfault here7\n");
+
    rlt[victim_pfn].vpn = request_vpn;
+   printf("segfault here8\n");
+
    current_pagetable[request_vpn].pfn = victim_pfn;
+   printf("segfault here9\n");
+
    current_pagetable[request_vpn].valid = 1;
 
   /*

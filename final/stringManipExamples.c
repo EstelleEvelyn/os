@@ -24,6 +24,7 @@ int main() {
     // creates a string with exactly 1024 characters, initially filled with whatever
     // happened to randomly be in that memory location before
     char msgToSend[1024];
+	char msg2[1024];
     printf("msgToSend allocated but no value set: %s\n", msgToSend);
 
 
@@ -52,17 +53,21 @@ int main() {
     // casts 33 and 66 to chars then prepends to the beginning of msgToSend
     // Note that msgToSend MUST have room allocated for 2 extra chars, because strcpy will access
     // 2 chars past the end of the original message
-    strcpy(&msgToSend[2], msgToSend);
-    msgToSend[0] = (char)count;
+    strcpy(msg2, msgToSend);
+	strcpy(&msgToSend[2], msg2);
+	printf("test\n");
+	msgToSend[0] = (char)count;
     msgToSend[1] = (char)(count*2);
     printf("msgToSend: %s\n", msgToSend);
 
 
+	
     // removes first 2 chars of msgToSend and converts back to ints,  moving rest of message
     // so 1st character is now what was previously 3rd character.
     int i1 = (int) msgToSend[0];
     int i2 = (int) msgToSend[1];
-    strcpy(msgToSend, &msgToSend[2]);
+    strcpy(msg2, &msgToSend[2]);
+	strcpy(msgToSend, msg2);
     printf("i1: %d, i2: %d, message: %s\n", i1, i2, msgToSend);
 
     return 0;

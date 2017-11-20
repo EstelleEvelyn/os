@@ -58,7 +58,7 @@ void proc_fork(int pid, const char *name) {
  * @param pid The process identifer.
  */
 const char *proc_getname(int pid) {
-   assert(pid < max_jobs); 
+   assert(pid < max_jobs);
    return proc_list[pid].name;
 }
 
@@ -78,7 +78,7 @@ void proc_switch(int pid) {
 
 
 /*******************************************************************************
- * Initializes memory used by the for process management. 
+ * Initializes memory used by the for process management.
  * This includes the process list and the reverse lookup table.
  */
 void proc_init(void) {

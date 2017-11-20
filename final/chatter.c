@@ -1,27 +1,27 @@
 /*
- * This system demonstrates the use of the socket() message passing to 
+ * This system demonstrates the use of the socket() message passing to
  * implement a distributed chat application.  Sockets are different from pipes
  * and shared memory because they can operate BETWEEN computers on a network.
  *
  * The chat app consists of 1 to 100 instances of the program "chatter"
  * which sets up a TCP port and both connects to any existing chatters in the
  * port range 1100-1200 (chosen more or less arbitrarily but causes no conflicts with
- * commonly used ports) and accepts connections from future chatters that join the 
- * system. 
+ * commonly used ports) and accepts connections from future chatters that join the
+ * system.
  *
  * To use simply compile with gcc or the given makefile and then open a new terminal
- * window to run each chatter executable in. Type in any terminal and all other 
+ * window to run each chatter executable in. Type in any terminal and all other
  * running chatters in the correct port range will receive and output each line.
  * Type "!q" and press enter to quit any individual chatter; any remaining chatters
  * will continue to work no matter which one you quit.
  *
- * Messages are passed through sockets using a local buffer. The format of messages 
- * between a client and server is called a PROTOCOL.  As a programmer, YOU have to decide 
- * upon a protocol. Currently in this example, a message is simply the string of characters 
+ * Messages are passed through sockets using a local buffer. The format of messages
+ * between a client and server is called a PROTOCOL.  As a programmer, YOU have to decide
+ * upon a protocol. Currently in this example, a message is simply the string of characters
  * the user types. It starts at buffer[0] and always ends at the first position in the
  * buffer where a '\0' is encountered. You can modify this in any way to add meta data
  * or encode special messages.
- * 
+ *
  * Author: Sherri Goings
  * Last Modified: 3/6/2014
 */
@@ -39,6 +39,9 @@
 // messages may be at most 1024 characters long
 size_t BUFFER_SIZE = 1024;
 
+int seqStart = 0;
+int seqNum;
+
 // socket address stores important info about specific type of socket connection
 struct sockaddr_in address;
 int addressSize;
@@ -46,9 +49,9 @@ int addressSize;
 // connected socket array, holds all nConnected sockets for this process, max 100.
 int cs[100];
 int nConnected = 0;
+int nextNode;
 
-
-// array to hold threads for receiving messages on a given connection, need 1 
+// array to hold threads for receiving messages on a given connection, need 1
 // thread per connection so at most 100 total.
 pthread_t receivers[100];
 
@@ -64,8 +67,12 @@ typedef struct sendMessage {
     int nToSend;
 } sendMessage;
 
+typedef struct receiveMessage {
+    char message[1024];
+    int nReceived;
+} receiveMessage;
 // sendBuffer holds up to 10 messages from this chatter that are waiting to be sent.
-// the buffer is implemented as a circular FIFO queue so startIndex is the position of 
+// the buffer is implemented as a circular FIFO queue so startIndex is the position of
 // the current first message and nHeld is the total number of messages in the buffer
 typedef struct toSendBuffer {
     sendMessage messages[10];
@@ -73,17 +80,26 @@ typedef struct toSendBuffer {
     int nHeld;
 } toSendBuffer;
 
+typedef struct toReceiveBuffer {
+  receiveMessage messages[10];
+  int startIndex;
+  int nHeld;
+} toReceiveBuffer;
+
 toSendBuffer sendBuffer;
+toReceiveBuffer receiveBuffer;
 
 // lock to protect the sendBuffer as multiple threads access it
 pthread_mutex_t sendBufLock;
+
+pthread_mutex_t receiveBuffLock;
 
 int joinNetwork(int port);
 int createNetwork(int port);
 int acceptConnection(int sock);
 void* listenSocket(void*);
 int getAndSend();
-void* delaySend(void*); 
+void* delaySend(void*);
 void* acceptIncoming(void*);
 int connectCurrent();
 
@@ -103,11 +119,18 @@ int main(int argc, char* argv[])
     sendBuffer.startIndex = 0;
     sendBuffer.nHeld = 0;
 
+    pthread_mutex_init(&receiveBuffLock, NULL);
+    receiveBuffer.startIndex = 0;
+    receiveBuffer.nHeld = 0;
+
     // seed the random number generator with the current time
     srand(time(NULL));
 
     // first connect to any existing chatters
     if (connectCurrent() == -1) return -1;
+
+    char tokenMessage[1025];
+    tokenMessage[0] = (char)seqStart;
 
     int i;
     // spin off threads to listen to already connected chatters and display their messages
@@ -141,15 +164,15 @@ int main(int argc, char* argv[])
     return 1;
 }
 
-/* 
- * sets up a local socket to connect to socket at given port number. Currently 
+/*
+ * sets up a local socket to connect to socket at given port number. Currently
  * connects to given point on local machine, but could connect to distant computer
- * by changing the IP address. 
+ * by changing the IP address.
  * argument: port number to attempt to connect to
- * return: -1 on error, 0 on port not found, socket id on successful connection 
- */ 
+ * return: -1 on error, 0 on port not found, socket id on successful connection
+ */
 int joinNetwork(int port) {
-    // Create a socket of type stream which gives reliable message passing.  
+    // Create a socket of type stream which gives reliable message passing.
     int s = socket(PF_INET,SOCK_STREAM,0);
     if (s <= 0) {
         printf("client: Socket creation failed.\n");
@@ -159,9 +182,9 @@ int joinNetwork(int port) {
     // Attempt connection to given port on local machine
     struct sockaddr_in joinAddress;
     int addressSize = sizeof(struct sockaddr_in);
-    joinAddress.sin_family=AF_INET;                         
-    joinAddress.sin_port = htons(port); 
-    inet_pton(AF_INET,"127.0.0.1",&joinAddress.sin_addr);  // <- IP 127.0.0.1 
+    joinAddress.sin_family=AF_INET;
+    joinAddress.sin_port = htons(port);
+    inet_pton(AF_INET,"127.0.0.1",&joinAddress.sin_addr);  // <- IP 127.0.0.1
 
     // If connection is successful, connect will retun 0 and set s appropriately
     if (connect(s,(struct sockaddr*) &joinAddress, addressSize) != 0) {
@@ -177,7 +200,7 @@ int joinNetwork(int port) {
  * socket otherwise.
  */
 int createNetwork(int port) {
-    // Create a socket of type stream which gives reliable message passing.  
+    // Create a socket of type stream which gives reliable message passing.
     int s = socket(PF_INET,SOCK_STREAM,0);
     if (s <= 0) {
         printf("server: Socket creation failed.\n");
@@ -188,7 +211,7 @@ int createNetwork(int port) {
     addressSize = sizeof(struct sockaddr);
     address.sin_family=AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port  = htons(port); 
+    address.sin_port  = htons(port);
 
     // bind the port to the socket
     int status=0;
@@ -205,7 +228,7 @@ int createNetwork(int port) {
     return s;
 }
 
-/* 
+/*
  * Accepts incoming connection request to given socket. accept is a blocking system
  * call so will sleep until request happens, then be woken up to handle it.
  * argument: socket to check for incoming connections on
@@ -221,24 +244,90 @@ int acceptConnection(int sock) {
 }
 
 /*
- * continually recieves messages on one connected socket. recv is a blocking system call 
+ * continually recieves messages on one connected socket. recv is a blocking system call
  * so will sleep until incoming message appears, then be woken up to handle it.
  * argument: index into cs of this connection. conversion to long then int is
- * required to avoid warnings, and I know some of you are very bothered by warnings =) 
+ * required to avoid warnings, and I know some of you are very bothered by warnings =)
  */
 void* listenSocket(void* args) {
     char* buffer = (char *) malloc(BUFFER_SIZE);
     int index = (int)(long)args;
     int sock = cs[index];
     int size;
+    int lastPrinted = seqStart; //track sequence number of last printed message
+    char flexMsg[BUFFER_SIZE]; //a holding message to copy strings onto themselves
+    int allChecked; //int to track status of receiveBuffer
+    char order; //start of message->order
+    int ordNum; //order cast to int
+    int j; //iterator
 
-    // recv blocks until message appears. 
+
+
+
+    // recv blocks until message appears.
     // returns size of message actually read, or 0 if realizes connection is lost
-    size = recv(sock, buffer, BUFFER_SIZE, 0); 
-    while (size>0) {
+    size = recv(sock, buffer, BUFFER_SIZE, 0);
+    while(size > 0) {
+      //order is first char in message
+      order = buffer[0];
+      ordNum = (int)order;
+      //if the order number sequentially follows what was already printed, print
+      //everything except the sequence character
+      if(ordNum  == lastPrinted + 1) {
+        strcpy(flexMsg, &buffer[1]);
+        strcpy(buffer, flexMsg);
         printf("%d: %s\n", sock, buffer);
-        size = recv(sock, buffer, BUFFER_SIZE, 0); 
-     } 
+        //update lastPrinted
+        lastPrinted = ordNum;
+      //add out-of-order message to receivedBuffer
+      } else {
+        pthread_mutex_lock(&receiveBuffLock);
+        int index = (receiveBuffer.startIndex+receiveBuffer.nHeld)%10;
+        strcpy(receiveBuffer.messages[index].message, buffer);
+        receiveBuffer.nHeld++;
+        pthread_mutex_unlock(&receiveBuffLock);
+      }
+
+      //loop through receivedBuffer to see if any held messages are now ready to print
+      allChecked = 0;
+      while(allChecked != 1) {
+        for(j = 0; j < 10; j++){
+          pthread_mutex_lock(&receiveBuffLock);
+          allChecked = 1;
+          order = receiveBuffer.messages[j].message[0];
+          ordNum = (int) order;
+          if(ordNum == lastPrinted + 1) {
+            strcpy(flexMsg, &receiveBuffer.messages[j].message[1]);
+            strcpy(receiveBuffer.messages[j].message, flexMsg);
+            printf("%d: %s\n", sock, receiveBuffer.messages[j].message);
+            lastPrinted = ordNum;
+            //if we printed something, it's possible another message already in the
+            //buffer is also now ready to print
+            allChecked = 0;
+          }
+          pthread_mutex_unlock(&receiveBuffLock);
+        }
+      }
+      size = recv(sock, buffer, BUFFER_SIZE, 0);
+    }
+    //check one last time to make sure nothing got stuck in the buffer
+    allChecked = 0;
+    while(allChecked != 1) {
+      for(j = 0; j < 10; j++){
+        pthread_mutex_lock(&receiveBuffLock);
+        allChecked = 1;
+        order = receiveBuffer.messages[j].message[0];
+        ordNum = (int) order;
+        if(ordNum == lastPrinted + 1) {
+          strcpy(flexMsg, &receiveBuffer.messages[j].message[1]);
+          strcpy(receiveBuffer.messages[j].message, flexMsg);
+          printf("%d: %s\n", sock, receiveBuffer.messages[j].message);
+          lastPrinted = ordNum;
+          allChecked = 0;
+        }
+        pthread_mutex_unlock(&receiveBuffLock);
+      }
+    }
 
     // socket was closed by other side so close this end as well
     shutdown(cs[index], SHUT_RDWR);
@@ -253,11 +342,21 @@ void* listenSocket(void* args) {
  */
 int getAndSend() {
     char* buffer = (char *) malloc(BUFFER_SIZE);
+    char helperMsg[BUFFER_SIZE];
+    int hasToken;
 
     // Get keyboard input from user, strip newline, quit if !q
     ssize_t nChars = getline(&buffer, &BUFFER_SIZE, stdin);
     buffer[nChars-1] = '\0';
     if (strcmp(buffer,"!q")==0) return 1;
+
+    //increment sequence number for this message
+    seqNum = (int)token.message[0] + sendBuffer.nHeld;
+    //using a temporary buffer, copy the buffer over to allocate an extra character
+    strcpy(helperMsg, buffer);
+    strcpy(&buffer[1], helperMsg);
+    //set the first character in the buffer to be the sequence number
+    buffer[0] = (char)seqNum;
 
     // clear line user just entered (only want to display lines when we choose in case need to reorder)
     printf("\33[1A\r");
@@ -280,23 +379,26 @@ int getAndSend() {
     int i;
     for (i=0; i<nConnected; i++) {
         if (cs[i] != -1) {
- 
+
             // increment num remaining to send of this message
             pthread_mutex_lock(&sendBufLock);
             sendBuffer.messages[index].nToSend++;
             pthread_mutex_unlock(&sendBufLock);
-            
+
             // create thread to do the actual sending so can add delays, needs to know
             // index of message in sendBuffer and socket to send to. Totally cheating and using the fact
-            // that a void* is 64 bits and each of these args is 32 bits so simply putting the index in 
-            // the 1st 32 bits of args and the socket in the 2nd 32 bits. Note that something seemingly 
-            // more logical like creating an array of the 2 integers and passing the address won't work 
-            // because the array will only exist until this function ends, before the threads actually 
+            // that a void* is 64 bits and each of these args is 32 bits so simply putting the index in
+            // the 1st 32 bits of args and the socket in the 2nd 32 bits. Note that something seemingly
+            // more logical like creating an array of the 2 integers and passing the address won't work
+            // because the array will only exist until this function ends, before the threads actually
             // need to use it.
             long indexL = (long)index;
             void* args = (void*)((indexL << 32) + cs[i]);
             pthread_t send_thread;
-            pthread_create(&send_thread, NULL, delaySend, args);
+            if(hasToken == 1) {
+              pthread_create(&send_thread, NULL, delaySend, args);
+              hasToken = 0;
+            }
          }
     }
 
@@ -306,10 +408,10 @@ int getAndSend() {
     return 0;
 }
 
-/* 
+/*
  * thread to sleep for random amount of time between 0 and given max # seconds, then send message.
  * update sendBuffer as appropriate
- * argument: first 32 bits of void* is index of message in sendBuffer, last 32 bits give 
+ * argument: first 32 bits of void* is index of message in sendBuffer, last 32 bits give
  * socket to send message to.
  */
 void* delaySend(void* args) {
@@ -317,10 +419,10 @@ void* delaySend(void* args) {
     long argsL = (long)args;
     int index = (int)(argsL >> 32);
     int socket = (int)((argsL << 32) >> 32);
-    
+
     // delay random amount up to max allowed
     usleep(rand()%(maxDelay*1000000));
-    
+
     pthread_mutex_lock(&sendBufLock);
     send(socket, sendBuffer.messages[index].message, BUFFER_SIZE, 0);
 
@@ -342,7 +444,7 @@ void* delaySend(void* args) {
  * nConnected. acceptConnection function makes a blocking call so we don't need to worry about
  * busy waiting.
  * argument is socket id to look for incoming requests on. conversion to long then int is
- * required to avoid warnings, and I know some of you are very bothered by warnings =) 
+ * required to avoid warnings, and I know some of you are very bothered by warnings =)
  */
 void* acceptIncoming(void* args) {
     int sock = (int)(long)args;
@@ -355,9 +457,9 @@ void* acceptIncoming(void* args) {
     }
 }
 
-/* 
+/*
  * scan all ports from 1100 to 1200 for already existing chatters by attempting
- * to connect to each. If successfully connect to a port, save connection in next slot 
+ * to connect to each. If successfully connect to a port, save connection in next slot
  * in connected socket array (cs), otherwise do nothing.
  * return -1 if encounter failure in creating socket for connection on this end
  */
@@ -373,4 +475,3 @@ int connectCurrent() {
     }
     return 0;
 }
-

@@ -1,6 +1,6 @@
 /**
  * CS2200 Project 3: Virtual Memory
- * 
+ *
  * sim.c  The actual state machine for the VM simulator.
  *
  *        NOTE: You should NOT have to modify this file!
@@ -157,7 +157,7 @@ void sim_readdata(void) {
     int pid;
     vaddr_t addr;
     word_t val, val2;
-    
+
     /* Parse command and possible arguments */
     cmd  = strtok(buff, WHITESPACE);
     arg1 = strtok(NULL, WHITESPACE);
@@ -196,7 +196,7 @@ void sim_readdata(void) {
         printf("...OK\n");
       }
       break;
-      
+
     /* Store to a memory location */
     case 's':
       pid = atoi(arg1);
@@ -209,7 +209,6 @@ void sim_readdata(void) {
         proc_switch(pid);
       }
       mem_store(addr, val);
-      printf("...OK\n");
 
     /* Ignore other commands (for comments and the like */
     default:
