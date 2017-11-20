@@ -24,6 +24,11 @@
  *
  * Author: Sherri Goings
  * Last Modified: 3/6/2014
+
+
+ I had no idea how to connect the ring for token passing, and I should have asked
+ about it earlier, and I'm sorry.
+
 */
 
 #include <stdio.h>
@@ -129,8 +134,7 @@ int main(int argc, char* argv[])
     // first connect to any existing chatters
     if (connectCurrent() == -1) return -1;
 
-    char tokenMessage[1025];
-    tokenMessage[0] = (char)seqStart;
+    seqNum = seqStart;
 
     int i;
     // spin off threads to listen to already connected chatters and display their messages
@@ -351,7 +355,7 @@ int getAndSend() {
     if (strcmp(buffer,"!q")==0) return 1;
 
     //increment sequence number for this message
-    seqNum = (int)token.message[0] + sendBuffer.nHeld;
+    seqNum++;
     //using a temporary buffer, copy the buffer over to allocate an extra character
     strcpy(helperMsg, buffer);
     strcpy(&buffer[1], helperMsg);
@@ -395,10 +399,7 @@ int getAndSend() {
             long indexL = (long)index;
             void* args = (void*)((indexL << 32) + cs[i]);
             pthread_t send_thread;
-            if(hasToken == 1) {
-              pthread_create(&send_thread, NULL, delaySend, args);
-              hasToken = 0;
-            }
+            pthread_create(&send_thread, NULL, delaySend, args);
          }
     }
 
